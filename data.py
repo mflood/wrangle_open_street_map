@@ -199,6 +199,41 @@ WAY_TAGS_FIELDS = ['id', 'key', 'value', 'type']
 WAY_NODES_FIELDS = ['id', 'node_id', 'position']
 
 
+street_type_re = re.compile(r'\b\S+\.?$', re.IGNORECASE)
+
+expected = ["Street", 
+            "Avenue", 
+            "Boulevard", 
+            "Drive", 
+            "Court", 
+            "Place", 
+            "Square", 
+            "Lane", 
+            "Road", 
+            "Trail", 
+            "Parkway", 
+            "Commons"]
+
+# UPDATE THIS VARIABLE
+mapping = { "St": "Street",
+            "St.": "Street"
+            }
+
+def audit_street_type(street_types, street_name):
+    m = street_type_re.search(street_name)
+    if m:
+        street_type = m.group()
+        if street_type not in expected:
+            street_types[street_type].add(street_name)
+
+
+def is_street_name(elem):
+    return (elem.attrib['k'] == "addr:street")
+
+
+lower = re.compile(r'^([a-z]|_)*$')
+lower_colon = re.compile(r'^([a-z]|_)*:([a-z]|_)*$')
+problemchars = re.compile(r'[=\+/&<>;\'"\?%#$@\,\. \t\r\n]')
 
 def get_key_parts(full_key):
     """
