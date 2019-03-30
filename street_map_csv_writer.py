@@ -11,11 +11,11 @@ import csv
 import codecs
 
 # This is what we're using for the wrangling course
-NODES_PATH = "database/nodes.csv"
-NODE_TAGS_PATH = "database/nodes_tags.csv"
-WAYS_PATH = "database/ways.csv"
-WAY_NODES_PATH = "database/ways_nodes.csv"
-WAY_TAGS_PATH = "database/ways_tags.csv"
+NODES_PATH = "generated_data/nodes.csv"
+NODE_TAGS_PATH = "generated_data/nodes_tags.csv"
+WAYS_PATH = "generated_data/ways.csv"
+WAY_NODES_PATH = "generated_data/ways_nodes.csv"
+WAY_TAGS_PATH = "generated_data/ways_tags.csv"
 
 NODE_FIELDS = ['id', 'lat', 'lon', 'user', 'uid', 'version', 'changeset', 'timestamp']
 NODE_TAGS_FIELDS = ['id', 'key', 'value', 'type']
