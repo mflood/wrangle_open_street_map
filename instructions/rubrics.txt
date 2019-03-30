@@ -1,0 +1,76 @@
+PROJECT SPECIFICATION
+Wrangle OpenStreetMap Data
+
+Code Functionality
+
+CRITERIA
+MEETS SPECIFICATIONS
+Does the code function as expected?
+
+Final project code functionality reflects the description in the project document.
+
+Code Readability
+
+CRITERIA
+MEETS SPECIFICATIONS
+Does project utilize good coding practices?
+
+Final project code follows an intuitive, easy-to-follow logical structure.
+
+Is the code commented in a way that is useful and not superfluous?
+
+Final project code that is not intuitively readable is well-documented with comments.
+
+Problems encountered in your map
+
+CRITERIA
+MEETS SPECIFICATIONS
+Does the project document the challenges encountered during the wrangling?
+
+Student response shows understanding of the process of auditing, and ways to correct or standardize the data, including dealing with problems specific to the location, e.g. related to language or traditional ways of formatting.
+
+Is data cleaned programmatically?
+
+Some of the problems encountered during data audit are cleaned programmatically.
+
+Overview of the data
+
+CRITERIA
+MEETS SPECIFICATIONS
+Is the OSM XML large enough?
+
+The OSM XML file is at least 50 MB uncompressed.
+
+Are overview statistics of the dataset computed?
+
+Database queries are used to provide a statistical overview of the dataset, like:
+
+size of the file
+number of unique users
+number of nodes and ways
+number of chosen type of nodes, like cafes, shops etc.
+Additional statistics not in the list above are computed. For SQL submissions some queries make use of more than one table.
+
+Are the database queries documented?
+
+The submission document includes the database queries and statistics from above.
+
+Other ideas about the dataset
+
+CRITERIA
+MEETS SPECIFICATIONS
+Are ideas for additional improvements included?
+
+Submission document includes one or more additional suggestions for improving the data or its analysis. The suggestions are backed up by at least one investigative query.
+
+Are benefits and problems with additional improvements discussed?
+
+Submission document includes thoughtful discussion about the benefits as well as some anticipated problems in implementing the improvement.
+
+Thoroughness and Succinctness of Submission
+
+CRITERIA
+MEETS SPECIFICATIONS
+Is the submission long enough to answer the questions?
+
+Submission document is long enough to thoroughly answer the questions asked without giving unnecessary detail. A good general guideline is that the question responses should take about 3-6 pages.
