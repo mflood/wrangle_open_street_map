@@ -105,3 +105,12 @@ venv.bak/
 
 *.bak
 new_orleans_city.osm
+
+# Database files
+new_orleans.db
+nodes.csv
+nodes_tags.csv
+ways.csv
+ways_nodes.csv
+ways_tags.csv
+
