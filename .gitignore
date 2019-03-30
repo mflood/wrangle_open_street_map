@@ -103,9 +103,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-*.bak
-new_orleans_city.osm
-
 # Database files
 new_orleans.db
 nodes.csv
@@ -114,3 +111,6 @@ ways.csv
 ways_nodes.csv
 ways_tags.csv
 
+# map files
+new_orleans_city.osm
+maps/*
