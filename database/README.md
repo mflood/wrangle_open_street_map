@@ -1,4 +1,3 @@
-
 # Stree Map Data
 
 ## Generate the csv files

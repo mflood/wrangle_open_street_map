@@ -1,4 +1,6 @@
-
+-- Run this after you have loaded the
+-- data into sqlite3
+-- to check that some data got into each table
 select 'testing node';
 select count(*) from  node;
 select * from node limit 1;

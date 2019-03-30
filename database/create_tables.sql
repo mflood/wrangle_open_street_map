@@ -1,4 +1,5 @@
-
+-- Create the sqllite tables
+--
 CREATE TABLE node (
     node_id INTEGER PRIMARY KEY NOT NULL,
     node_lat REAL,
