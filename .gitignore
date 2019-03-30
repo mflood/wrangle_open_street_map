@@ -114,3 +114,4 @@ ways_tags.csv
 # map files
 new_orleans_city.osm
 maps/*
+generated_data/*
