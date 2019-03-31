@@ -178,7 +178,7 @@ import cerberus
 
 import schema
 
-OSM_PATH = "new_orleans_city.osm"
+OSM_PATH = "maps/new_orleans_city.osm"
 
 NODES_PATH = "nodes.csv"
 NODE_TAGS_PATH = "nodes_tags.csv"
@@ -198,37 +198,71 @@ WAY_FIELDS = ['id', 'user', 'uid', 'version', 'changeset', 'timestamp']
 WAY_TAGS_FIELDS = ['id', 'key', 'value', 'type']
 WAY_NODES_FIELDS = ['id', 'node_id', 'position']
 
-
-street_type_re = re.compile(r'\b\S+\.?$', re.IGNORECASE)
-
-expected = ["Street", 
-            "Avenue", 
-            "Boulevard", 
-            "Drive", 
-            "Court", 
-            "Place", 
-            "Square", 
-            "Lane", 
-            "Road", 
-            "Trail", 
-            "Parkway", 
-            "Commons"]
-
-# UPDATE THIS VARIABLE
-mapping = { "St": "Street",
-            "St.": "Street"
-            }
-
-def audit_street_type(street_types, street_name):
-    m = street_type_re.search(street_name)
-    if m:
-        street_type = m.group()
-        if street_type not in expected:
-            street_types[street_type].add(street_name)
+expected = ["Street",
+            "Avenue",
+            "Court",
+            "Drive",
+            "Road",
+            "Boulevard",
+            "Place",
+            "Lane",
+            "Circle",
+            "Cove",
+            "Arcade",
+            "Way",
+            "Walk",
+            "Highway",
+            "Parkway",
+            "Alley",
+            "Plaza"]
 
 
-def is_street_name(elem):
-    return (elem.attrib['k'] == "addr:street")
+to_fix = {"St": "Street",
+          "St.": "Street",
+          "Ave": "Avenue",
+          "Pkwy": "Parkway",
+          "Hwy": "Highway",
+          "Blvd": "Boulevard",
+          "Dr": "Drive",
+          "Ave.": "Avenue",
+          "Pky": "Parkway"}
+
+fullname_mapping = {"Banks": "Banks Street",
+                    "Regent Street #C": "Regent Street",
+                    "Dumaine": "Dumaine Street",
+                    "Magazine Street;Magazine Street": "Magazine Street",
+                    "Magazine": "Magazine Street",
+                    "Rosa PARK": "Rosa Park",
+                    "Severn": "Severn Avenue",
+                    "St. Peter": "Saint Peter Street",
+                    "3157 Gentilly Blvd #2019": "Gentilly Boulevard",
+                    "Marais": "Marais Street",
+                    "Royal": "Royal Street",
+                    "Canal Street at Bourbon": "Canal Street",
+                    "General Taylor": "General Taylor Street",
+                    "Gretna Blvd Ste A": "Gretna Boulevard",
+                    "Manhattan Boulevard Building": "Manhattan Boulevard",
+                    "Saint Charles Avenue, Suite 114-351": "Saint Charles Avenue",
+                   }
+
+
+def is_street_name(tag_key):
+    return (tag_key == "addr:street")
+
+street_type_re = re.compile(r'(.*) (\b\S+\.?)$', re.IGNORECASE)
+def fix_street_name(value):
+    # patch full items that are borked
+    value = fullname_mapping.get(value, value)
+    match = street_type_re.match(value)
+    if match:
+        #continue
+        first_path = match.group(1)
+        street_type = match.group(2)
+        street_type = to_fix.get(street_type, street_type)
+
+        value = "{} {}".format(first_path, street_type)
+    return value
+    
 
 
 lower = re.compile(r'^([a-z]|_)*$')
@@ -270,13 +304,19 @@ def shape_element(element,
 
             # if the k value contains problematic characters, the tag shuld be ignored
             # 
-            base_type, key = get_key_parts(tag.attrib['k'])
+            full_key = tag.attrib['k']
+            value = tag.attrib['v']
+
+            if is_street_name(full_key):
+                value = fix_street_name(value)            
+
+            base_type, key = get_key_parts(full_key)
 
             tag_dict = {
                 'id': element.attrib.get('id'),
                 'key': key,
                 'type': base_type,
-                'value': tag.attrib['v'],
+                'value': value,
             }
             tags.append(tag_dict)
 
