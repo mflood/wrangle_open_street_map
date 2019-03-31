@@ -11,7 +11,7 @@
 > 
 > I used conda to manage the environment:
 
-    conda env create -n wrangling_py368 python=3.6.8
+    conda create -n wrangling_py368 python=3.6.8
     source activate wrangling_py368
     pip install pip==19.0.3
     pip install -r requirements.txt
