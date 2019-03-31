@@ -8,8 +8,8 @@ delete from way_tag;
 
 .mode csv
 
-.import nodes.csv node
-.import nodes_tags.csv node_tag
-.import ways.csv way
-.import ways_nodes.csv way_node
-.import ways_tags.csv way_tag
+.import ../generated_data/nodes.csv node
+.import ../generated_data/nodes_tags.csv node_tag
+.import ../generated_data/ways.csv way
+.import ../generated_data/ways_nodes.csv way_node
+.import ../generated_data/ways_tags.csv way_tag
