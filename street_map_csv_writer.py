@@ -9,13 +9,15 @@
 # -*- coding: utf-8 -*-
 import csv
 import codecs
+import os.join
+import sys
 
 # This is what we're using for the wrangling course
-NODES_PATH = "generated_data/nodes.csv"
-NODE_TAGS_PATH = "generated_data/nodes_tags.csv"
-WAYS_PATH = "generated_data/ways.csv"
-WAY_NODES_PATH = "generated_data/ways_nodes.csv"
-WAY_TAGS_PATH = "generated_data/ways_tags.csv"
+NODES_FILENAME = "nodes.csv"
+NODE_TAGS_FILENAME = "nodes_tags.csv"
+WAYS_FILENAME = "ways.csv"
+WAY_NODES_FILENAME = "ways_nodes.csv"
+WAY_TAGS_FILENAME = "ways_tags.csv"
 
 NODE_FIELDS = ['id', 'lat', 'lon', 'user', 'uid', 'version', 'changeset', 'timestamp']
 NODE_TAGS_FIELDS = ['id', 'key', 'value', 'type']
@@ -25,24 +27,37 @@ WAY_TAGS_FIELDS = ['id', 'key', 'value', 'type']
 
 class StreetMapCsvWriter():
 
-    def __init__(self, add_csv_headers):
+    def __init__(self, add_csv_headers, output_directory):
         self._writers = {}
         self._filehandles = []
         self._add_csv_headers = add_csv_headers
+        self._output_directory = output_directory
+        self._num_nodes = 0
+        self._num_node_tags = 0
+        self._num_ways = 0
+
         self._setup_for_wrangling_course()
 
     def __del__(self):
         for handle in self._filehandles:
             handle.close()
 
-    def _setup_for_wrangling_course(self):
-        self._add_writer('node', NODES_PATH, NODE_FIELDS)
-        self._add_writer('node_tags', NODE_TAGS_PATH, NODE_TAGS_FIELDS)
-        self._add_writer('way', WAYS_PATH, WAY_FIELDS)
-        self._add_writer('way_nodes', WAY_NODES_PATH, WAY_NODES_FIELDS)
-        self._add_writer('way_tags', WAY_TAGS_PATH, WAY_TAGS_FIELDS)
+    def _make_output_path(self, filename):
+        return os.path.join(self._output_directory, filename)
 
-    def _add_writer(self, writer_name, filepath, fieldlist):
+    def _setup_for_wrangling_course(self):
+        self._add_writer('node', NODES_FILENAME, NODE_FIELDS)
+        self._add_writer('node_tags', NODE_TAGS_FILENAME, NODE_TAGS_FIELDS)
+        self._add_writer('way', WAYS_FILENAME, WAY_FIELDS)
+        self._add_writer('way_nodes', WAY_NODES_FILENAME, WAY_NODES_FIELDS)
+        self._add_writer('way_tags', WAY_TAGS_FILENAME, WAY_TAGS_FIELDS)
+
+    def _add_writer(self, writer_name, filename, fieldlist):
+        
+        # determine full output path
+        filepath = os.path.join(self._output_directory, filename)
+
+
         codec = codecs.open(filepath, 'w', encoding='utf-8')
         self._filehandles.append(codec)
         writer = csv.DictWriter(codec, fieldlist)
@@ -79,6 +94,9 @@ class StreetMapCsvWriter():
           'changeset': 5288876
         }
         """
+        self._num_nodes += 1
+        if self._num_nodes % 100000 == 0:
+            print("n: {}".format(self._num_nodes))
         self._add_row('node', node_dictionary)
 
     def add_node_tags(self, list_of_tag_dicts):
@@ -94,6 +112,9 @@ class StreetMapCsvWriter():
                 'type': 'regular'},
             ]
         """
+        self._num_node_tags += 1
+        if self._num_node_tags % 100000 == 0:
+            print("nt: {}".format(self._num_node_tags))
         self._add_rows('node_tags', list_of_tag_dicts)
 
     def add_way(self, way_dictionary):
@@ -105,6 +126,9 @@ class StreetMapCsvWriter():
              'timestamp': '2013-03-13T15:58:04Z',
              'changeset': 15353317},
          """
+        self._num_ways += 1
+        if self._num_ways % 10000 == 0:
+            print("w: {}".format(self._num_ways))
         self._add_row('way', way_dictionary)
 
     def add_way_nodes(self, list_of_waynode_dicts):
