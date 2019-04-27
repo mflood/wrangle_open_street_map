@@ -16,7 +16,7 @@ The process for this transformation is as follows:
 We've already provided the code needed to load the data, perform iterative parsing and write the
 output to csv files. Your task is to complete the shape_element function that will transform each
 element into the correct format. To make this process easier we've already defined a schema (see
-the schema.py file in the last code tab) for the .csv files and the eventual tables. Using the 
+the schema.py file in the last code tab) for the .csv files and the eventual tables. Using the
 cerberus library we can validate the output against this schema to ensure it is correct.
 
 ## Shape Element Function
@@ -230,7 +230,7 @@ to_fix = {"St": "Street",
 fullname_mapping = {"Banks": "Banks Street",
                     "Regent Street #C": "Regent Street",
                     "Dumaine": "Dumaine Street",
-                    "Magazine Street;Magazine Street": "Magazine Street",
+                    "Magazine Street;Magazine St": "Magazine Street",
                     "Magazine": "Magazine Street",
                     "Rosa PARK": "Rosa Park",
                     "Severn": "Severn Avenue",
@@ -243,16 +243,25 @@ fullname_mapping = {"Banks": "Banks Street",
                     "Gretna Blvd Ste A": "Gretna Boulevard",
                     "Manhattan Boulevard Building": "Manhattan Boulevard",
                     "Saint Charles Avenue, Suite 114-351": "Saint Charles Avenue",
+                    "1227 Tulane Ave": "Tulane Avenue",
+                    "621 Canal Street": "Canal Street",
+                    "Westgrove PARK": "Westgrove Park",
+                    "George 'Nick' Connor Drive": "George Nick Connor Drive",
                    }
-
 
 def is_street_name(tag_key):
     return (tag_key == "addr:street")
 
 street_type_re = re.compile(r'(.*) (\b\S+\.?)$', re.IGNORECASE)
 def fix_street_name(value):
+
+    # trim any leading and trailing whitespace
+    value = value.strip()
+
     # patch full items that are borked
     value = fullname_mapping.get(value, value)
+
+    # match against street regex
     match = street_type_re.match(value)
     if match:
         #continue
@@ -261,8 +270,24 @@ def fix_street_name(value):
         street_type = to_fix.get(street_type, street_type)
 
         value = "{} {}".format(first_path, street_type)
+
+        beginnings = {'N ': 'North',
+                      'S ': 'South',
+                      'E ': 'East',
+                      'W ': 'West',
+                      'St ': 'Saint',
+                      'St. ': 'Saint'}
+        for k, v in beginnings.items():
+            start_string = "{} ".format(k)
+            if value.startswith(k):
+                value = value.replace(k, v, 1)
+
+        # any St or St. that still remain are 'Saint'
+        value.replace('St ', 'Saint ')
+        value.replace('St. ', 'Saint ')
+
     return value
-    
+
 
 
 lower = re.compile(r'^([a-z]|_)*$')
@@ -285,10 +310,10 @@ def get_key_parts(full_key):
 
     return (base_type, key)
 
-def shape_element(element, 
-                  node_attr_fields=NODE_FIELDS, 
+def shape_element(element,
+                  node_attr_fields=NODE_FIELDS,
                   way_attr_fields=WAY_FIELDS,
-                  problem_chars=PROBLEMCHARS, 
+                  problem_chars=PROBLEMCHARS,
                   default_tag_type='regular'):
     """
         Clean and shape node or way XML element to Python dict
@@ -303,12 +328,12 @@ def shape_element(element,
         for tag in element.iter("tag"):
 
             # if the k value contains problematic characters, the tag shuld be ignored
-            # 
+            #
             full_key = tag.attrib['k']
             value = tag.attrib['v']
 
             if is_street_name(full_key):
-                value = fix_street_name(value)            
+                value = fix_street_name(value)
 
             base_type, key = get_key_parts(full_key)
 
@@ -322,7 +347,6 @@ def shape_element(element,
 
     if element.tag == 'node':
 
-        
         # Process the attributes in the <node> element
         #
         node_attribs = {}
@@ -375,7 +399,6 @@ def validate_element(element, validator, schema=SCHEMA):
         field, errors = next(validator.errors.items())
         message_string = "\nElement of type '{0}' has the following errors:\n{1}"
         error_string = pprint.pformat(errors)
-        
         raise Exception(message_string.format(field, error_string))
 
 
@@ -387,7 +410,9 @@ def process_map(file_in, validate):
     """Iteratively process each XML element and write to csv(s)"""
     from street_map_csv_writer import StreetMapCsvWriter
 
-    writer = StreetMapCsvWriter(add_csv_headers=False)
+    writer = StreetMapCsvWriter(add_csv_headers=False,
+                                output_directory='generated_data')
+
     validator = cerberus.Validator()
 
     for element in get_element(file_in, tags=('node', 'way')):
@@ -407,5 +432,5 @@ def process_map(file_in, validate):
 if __name__ == '__main__':
     # Note: Validation is ~ 10X slower. For the project consider using a small
     # sample of the map when validating.
-    process_map(OSM_PATH, validate=True)
+    process_map(OSM_PATH, validate=False)
 
