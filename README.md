@@ -23,7 +23,7 @@
 
 [openstreetmap bounding box](https://www.openstreetmap.org/export#map=11/30.0326/-89.8826)
 >
-[download](https://overpass-api.de/api/map?bbox=-90.2170,29.8633,-89.5482,30.2015)
+[download from overpass-api.de](https://overpass-api.de/api/map?bbox=-90.2170,29.8633,-89.5482,30.2015)
 
 ```bash
 curl -o new_orleans_city.osm https://overpass-api.de/api/map?bbox=-90.2170,29.8633,-89.5482,30.2015
@@ -48,7 +48,7 @@ curl -o new_orleans_city.osm https://overpass-api.de/api/map?bbox=-90.2170,29.86
 Downloaded Data Size
 
 ```
-maps/new_orleans_city.osm ......... 373 MB
+downloaded_maps/new_orleans_city.osm ......... 373 MB
 ```
 
 Generated CSV File Sizes
@@ -196,7 +196,7 @@ jewish ................... 10
 unitarian_universalist ... 1
 ```
 
-### Religios Denominations
+### Religious Denominations
 
 ```sql
 sqlite>
@@ -265,5 +265,63 @@ italian ...... 5
 sandwich ..... 5
 asian ........ 4
 chinese ...... 4
+```
+
+
+### Which streets cross Bourbon Street
+```sql
+select
+     cross_street_tags.tag_value as cross_street_name
+-- , main_street_nodes.way_id
+-- , main_street_nodes.node_id
+-- , cross_street_nodes.way_id
+-- , node.node_lat
+-- , node.node_lon
+from way_node as main_street_nodes
+
+-- all the way_nodes that cross bourbon street
+inner join way_node as cross_street_nodes
+   on cross_street_nodes.node_id = main_street_nodes.node_id
+      -- don't join bourbon street to itself
+  and cross_street_nodes.way_id != main_street_nodes.way_id
+-- get the node details
+inner join node
+  on node.node_id = cross_street_nodes.node_id
+-- find the cross street name
+inner join way_tag cross_street_tags
+ on cross_street_tags.way_id = cross_street_nodes.way_id
+ and cross_street_tags.tag_key = 'name'
+where main_street_nodes.way_id = (
+        select way_id 
+          from way_tag 
+         where tag_key = 'name' 
+           and tag_value like 'Bourbon Street')
+order by node.node_lat
+, node.node_lon;
+```
+
+```
+Carondelet Street
+Canal Street
+Canal St Streetcar
+Canal St Streetcar
+Canal Street
+Iberville Street
+Bienville Street
+Conti Street
+Saint Louis Street
+Toulouse Street
+Saint Peter Street
+Orleans Avenue
+Saint Ann Street
+Dumaine Street
+Saint Philip Street
+Ursulines Avenue
+Governor Nicholls Street
+Barracks Street
+Esplanade Avenue
+Esplanade Avenue
+Pauger Street
+Kerlerec Street
 ```
 

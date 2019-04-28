@@ -156,29 +156,15 @@ The final return value for a "way" element should look something like:
 
 import csv
 import pprint
-
-# regex usage:
-# prog = re.compile(pattern)
-# result = prog.match(string)
-#>>> m = re.match(r"(\w+) (\w+)", "Isaac Newton, physicist")
-#>>> m.group(0)       # The entire match
-#'Isaac Newton'
-#>>> m.group(1)       # The first parenthesized subgroup.
-#'Isaac'
-#>>> m.group(2)       # The second parenthesized subgroup.
-#'Newton'
-#>>> m.group(1, 2)    # Multiple arguments give us a tuple.
-#('Isaac', 'Newton')
 import re
 
 import xml.etree.cElementTree as ET
 
 # for schema validation
 import cerberus
-
 import schema
 
-OSM_PATH = "maps/new_orleans_city.osm"
+OSM_PATH = "downloaded_maps/new_orleans_city.osm"
 
 NODES_PATH = "nodes.csv"
 NODE_TAGS_PATH = "nodes_tags.csv"
@@ -214,7 +200,8 @@ expected = ["Street",
             "Highway",
             "Parkway",
             "Alley",
-            "Plaza"]
+            "Plaza",
+            "Trace"]
 
 
 to_fix = {"St": "Street",
@@ -247,6 +234,7 @@ fullname_mapping = {"Banks": "Banks Street",
                     "621 Canal Street": "Canal Street",
                     "Westgrove PARK": "Westgrove Park",
                     "George 'Nick' Connor Drive": "George Nick Connor Drive",
+                    "Bal of Square": "Banks Street",
                    }
 
 def is_street_name(tag_key):

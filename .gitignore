@@ -113,7 +113,7 @@ ways_tags.csv
 
 # map files
 new_orleans_city.osm
-maps/*
+downloaded_maps/*
 generated_data/*
 readme.txt
 
