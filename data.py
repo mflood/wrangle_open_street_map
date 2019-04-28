@@ -315,9 +315,8 @@ def shape_element(element,
         #
         for tag in element.iter("tag"):
 
-            # if the k value contains problematic characters, the tag shuld be ignored
-            #
-            full_key = tag.attrib['k']
+            # Force key to lowercase
+            full_key = tag.attrib['k'].lower()
             value = tag.attrib['v']
 
             if is_street_name(full_key):
