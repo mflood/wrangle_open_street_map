@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# This script provided by Udacity
 
 import xml.etree.ElementTree as ET  # Use cElementTree or lxml if too slow
 
