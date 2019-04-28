@@ -31,7 +31,8 @@ curl -o new_orleans_city.osm https://overpass-api.de/api/map?bbox=-90.2170,29.86
 
 ## Auditing the data
 
-> You can follow my audit trail by launching this jupyter notebook
+> You can follow my audit trail here: [NewOrleansStreetMapWrangling.html](NewOrleansStreetMapWrangling.html)
+> or by launching this jupyter notebook
 > make sure you source the conda env first so the right kernel will be available
 
 ```bash
