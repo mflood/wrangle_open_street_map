@@ -356,3 +356,55 @@ Pauger Street
 Kerlerec Street
 ```
 
+## Ideas for Additional Improvements
+
+> One improvement to the data would be to remove any data associated with "fixme" tags.  The benefit would be less noise in the data, but the drawback would be a more incomplete data set.
+> 
+```
+sqlite> select tag_key
+              , count(*) 
+        from node_tag 
+        where tag_key like '%FIX%' group by 1;
+```
+```
+fixme|25
+```
+
+> Another improvement would be to standardize the date formats of tag_values.  For instance, the 'start_date' tag:
+
+```
+sqlite> select tag_value 
+          from node_tag 
+         where tag_key like 'start_date'
+         order by 1;
+```
+
+```
+1803
+1856
+1856-02-09
+1862
+1893
+1894
+1897
+1899
+1906
+1938
+1938
+1943-11-10
+1955
+1983
+1983
+1984
+1987
+1991
+1992-05-20
+1995-03-19
+2003-06
+2008
+2010
+```
+
+> One drawback of standardizing the start_date would be that we might not have the information of the actual day, and so using a default of, say , January 1, might be misleading to people.
+
+
