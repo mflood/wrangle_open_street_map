@@ -9,7 +9,7 @@
 # -*- coding: utf-8 -*-
 import csv
 import codecs
-import os.join
+import os.path
 import sys
 
 # This is what we're using for the wrangling course
