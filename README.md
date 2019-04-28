@@ -1,4 +1,4 @@
-# wrangle\_open\_street\_map
+# Wrangle Open Street Map: New Orleans
 
 > Matthew Flood
 >
@@ -41,11 +41,13 @@ jupyter notebook wrangling_project.ipynb
 
 > Change the kernel to wrangling\_py368
 
-### Audit Summary of Problems Encountered in the Map Data
+### Summary of Problems Encountered in the Map Data
 > This is an overview of what was discovered during the audit
 
-1. 
-
+1. Abbreviated Street name components like "St." for "Street", "St." for Saint and "N" for "North"
+2. Inconsistent capitalization of tag keys. Examples are "Payments" vs. "payments" and "NHD:FTYPE" vs "NHD:FType"
+3. Extra data in street names, such as "3157 Gentilly Blvd #2019", which should just be "Gentilly Boulevard"
+4. Completely incorrect data, like "Bal of Square" which should be "Banks Street"
 
 
 ## Generating CSV files and importing into SqLite
