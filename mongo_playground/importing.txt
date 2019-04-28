@@ -1,0 +1,1 @@
+mongoimport -d exampledatabase -c autos_collection --files autos.json
