@@ -32,14 +32,42 @@ curl -o new_orleans_city.osm https://overpass-api.de/api/map?bbox=-90.2170,29.86
 ## Auditing the data
 
 > You can follow my audit trail by launching this jupyter notebook
->
->     jupyter notebook wrangling_project.ipynb
->
+> make sure you source the conda env first so the right kernel will be available
+
+```bash
+source activate wrangling_py368
+jupyter notebook wrangling_project.ipynb
+```
+
 > Change the kernel to wrangling\_py368
-### Here are the findings:
->
->
->
+
+### Audit Summary of Problems Encountered in the Map Data
+> This is an overview of what was discovered during the audit
+
+1. 
+
+
+
+## Generating CSV files and importing into SqLite
+
+### Generating the CSV Files
+
+We need to process the downloaded map data and create CSV files that can be loaded into a database.  You can run the following by hand, or invoke process_map.sh, which does the same thing:
+
+```bash
+# make the output directory
+mkdir -p generated_data
+
+# source the conda env
+source activate wrangling_py368
+
+# run data.py
+python data.py
+```
+
+#### Importing into SqLite
+Once `data.py` has run, the generated csv files will be in the `generated_data` folder.  You can then import the CSV files into SqLite by following the instructions in [database_sqlite/README.md](database_sqlite/README.md)
+
 
 # Data overview and additional Ideas
 
@@ -48,7 +76,7 @@ curl -o new_orleans_city.osm https://overpass-api.de/api/map?bbox=-90.2170,29.86
 Downloaded Data Size
 
 ```
-downloaded_maps/new_orleans_city.osm ......... 373 MB
+maps/new_orleans_city.osm ......... 373 MB
 ```
 
 Generated CSV File Sizes
