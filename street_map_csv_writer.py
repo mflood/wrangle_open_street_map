@@ -39,13 +39,23 @@ class StreetMapCsvWriter():
         self._setup_for_wrangling_course()
 
     def __del__(self):
+        """
+            destructor - cleanup open handles
+        """
         for handle in self._filehandles:
             handle.close()
 
     def _make_output_path(self, filename):
+        """
+            append filename to output directory
+        """
         return os.path.join(self._output_directory, filename)
 
     def _setup_for_wrangling_course(self):
+        """
+            create CSV writer for each record type
+            used in the OSM project
+        """
         self._add_writer('node', NODES_FILENAME, NODE_FIELDS)
         self._add_writer('node_tags', NODE_TAGS_FILENAME, NODE_TAGS_FIELDS)
         self._add_writer('way', WAYS_FILENAME, WAY_FIELDS)
@@ -53,6 +63,9 @@ class StreetMapCsvWriter():
         self._add_writer('way_tags', WAY_TAGS_FILENAME, WAY_TAGS_FIELDS)
 
     def _add_writer(self, writer_name, filename, fieldlist):
+        """
+            Build a CSV writer identified by writer_name
+        """
         
         # determine full output path
         filepath = os.path.join(self._output_directory, filename)
@@ -66,10 +79,18 @@ class StreetMapCsvWriter():
         self._writers[writer_name] = writer
         
     def _add_rows(self, writer_name, list_of_dictionaries):
+        """
+            Add a list of records to the CSV writer
+            identified by writer_name
+        """
         assert(isinstance(list_of_dictionaries, list))
         self._writers[writer_name].writerows(list_of_dictionaries)
         
     def _add_row(self, writer_name, dictionary):
+        """
+            Add a single record to the CSV writer
+            identified by writer_name
+        """
         assert(isinstance(dictionary, dict))
         self._writers[writer_name].writerow(dictionary)
         
