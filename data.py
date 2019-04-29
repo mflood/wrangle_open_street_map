@@ -238,10 +238,16 @@ fullname_mapping = {"Banks": "Banks Street",
                    }
 
 def is_street_name(tag_key):
+    """
+        untility method to identify street addresses
+    """
     return (tag_key == "addr:street")
 
 street_type_re = re.compile(r'(.*) (\b\S+\.?)$', re.IGNORECASE)
 def fix_street_name(value):
+    """
+        Normalize street names so they are more consistent
+    """
 
     # trim any leading and trailing whitespace
     value = value.strip()
@@ -370,7 +376,9 @@ def shape_element(element,
 #               Helper Functions                     #
 # ================================================== #
 def get_element(osm_file, tags=('node', 'way', 'relation')):
-    """Yield element if it is the right type of tag"""
+    """
+        Yield element if it is the right type of tag
+    """
 
     context = ET.iterparse(osm_file, events=('start', 'end'))
     _, root = next(context)
@@ -381,7 +389,9 @@ def get_element(osm_file, tags=('node', 'way', 'relation')):
 
 
 def validate_element(element, validator, schema=SCHEMA):
-    """Raise ValidationError if element does not match schema"""
+    """
+        Raise ValidationError if element does not match schema
+    """
     if validator.validate(element, schema) is not True:
         field, errors = next(validator.errors.items())
         message_string = "\nElement of type '{0}' has the following errors:\n{1}"
@@ -394,7 +404,9 @@ def validate_element(element, validator, schema=SCHEMA):
 # ================================================== #
 
 def process_map(file_in, validate):
-    """Iteratively process each XML element and write to csv(s)"""
+    """
+        Iteratively process each XML element and write to csv(s
+    """
     from street_map_csv_writer import StreetMapCsvWriter
 
     writer = StreetMapCsvWriter(add_csv_headers=False,
