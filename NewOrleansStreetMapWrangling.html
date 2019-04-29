@@ -11777,6 +11777,8 @@ div#notebook {
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="OpenStreetMap-Data-Data-Audit">OpenStreetMap Data Data Audit<a class="anchor-link" href="#OpenStreetMap-Data-Data-Audit">&#182;</a></h1><hr>
 <p>Matthew Flood</p>
+<blockquote><p>This notebook contains the details of the Audit.  Please see <a href="README.md">README.md</a>, which is my project submission document.</p>
+</blockquote>
 <h3 id="Map-Area">Map Area<a class="anchor-link" href="#Map-Area">&#182;</a></h3><p>New Orleans, LA, United States</p>
 <ul>
 <li><a href="https://www.openstreetmap.org/relation/131885">https://www.openstreetmap.org/relation/131885</a></li>
@@ -11792,10 +11794,9 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="k">as</span> <span class="nn">ET</span>
-<span class="kn">import</span> <span class="nn">pprint</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
-<span class="kn">import</span> <span class="nn">re</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">notebook_audit_methods</span>
+
 <span class="n">MAP_PATH</span><span class="o">=</span><span class="s2">&quot;downloaded_maps/new_orleans_city.osm&quot;</span>
 </pre></div>
 
@@ -11819,42 +11820,7 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">identify_tags_fullpath</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Identifies tags along with their parent heirarchy</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">tag_types</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">tag_types_ordered</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">stack</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">events</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">ET</span><span class="o">.</span><span class="n">iterparse</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span><span class="s2">&quot;end&quot;</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="s2">&quot;start&quot;</span><span class="p">:</span>
-                <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
-                <span class="n">tag_path</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span>
-                <span class="n">tag_types</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">tag_path</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">tag_types</span><span class="p">[</span><span class="n">tag_path</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="c1"># print(tag_path)</span>
-                    <span class="n">tag_types_ordered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag_path</span><span class="p">)</span>
-                <span class="n">tag_types</span><span class="p">[</span><span class="n">tag_path</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">event</span> <span class="o">==</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span>
-                <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-
-    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">tag_types_ordered</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0: &lt;20}</span><span class="s2"> </span><span class="si">{1: &gt;10}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">tag_types</span><span class="p">[</span><span class="n">item</span><span class="p">]))</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">identify_tags_fullpath</span><span class="p">(</span><span class="n">MAP_PATH</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">notebook_audit_methods</span><span class="o">.</span><span class="n">identify_tags_fullpath</span><span class="p">(</span><span class="n">MAP_PATH</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11917,60 +11883,6 @@ osm/remark                    1
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">audit_tag_keys</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">parent_tag</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        parent_tag: way, node, relation</span>
-<span class="sd">        </span>
-<span class="sd">        Audit all the &quot;k&quot; attributes and put them into 4 buckets</span>
-<span class="sd">        1. all lowercase and valid</span>
-<span class="sd">        2. all lowercase with a &#39;:&#39; in the middle, and valid</span>
-<span class="sd">        3. ones with bad characters</span>
-<span class="sd">        4. others (none of the above)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="n">lowercase_tags</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">lowercase_colon_tags</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">bad_char_tags</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">other_tags</span> <span class="o">=</span> <span class="p">{}</span>
-   
-    <span class="n">regex_all_lower</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^([_a-z])*$&#39;</span><span class="p">)</span>
-    <span class="n">lower_colon</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^([_a-z])*:([_a-z])*$&#39;</span><span class="p">)</span>
-    <span class="n">problemchars</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[^_a-z]&#39;</span><span class="p">)</span>
-    
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">ET</span><span class="o">.</span><span class="n">iterparse</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,)):</span>
-            <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">parent_tag</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">iterfind</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;tag&quot;</span><span class="p">:</span>
-                        <span class="n">k_val</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span>
-                        <span class="n">v_val</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span>
-                        <span class="c1"># print(k_val)</span>
-                        <span class="k">if</span> <span class="n">regex_all_lower</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">k_val</span><span class="p">):</span>
-                            <span class="n">lowercase_tags</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">k_val</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
-                            <span class="n">lowercase_tags</span><span class="p">[</span><span class="n">k_val</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v_val</span><span class="p">)</span>
-                        <span class="k">elif</span> <span class="n">lower_colon</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">k_val</span><span class="p">):</span>
-                            <span class="n">lowercase_colon_tags</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">k_val</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
-                            <span class="n">lowercase_colon_tags</span><span class="p">[</span><span class="n">k_val</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v_val</span><span class="p">)</span>
-                        <span class="k">elif</span> <span class="n">problemchars</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">k_val</span><span class="p">):</span>
-                            <span class="n">bad_char_tags</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">k_val</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
-                            <span class="n">bad_char_tags</span><span class="p">[</span><span class="n">k_val</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v_val</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">other_tags</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">k_val</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
-                            <span class="n">other_tags</span><span class="p">[</span><span class="n">k_val</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v_val</span><span class="p">)</span>
-    
-    <span class="k">return</span> <span class="p">(</span><span class="n">lowercase_tags</span><span class="p">,</span> <span class="n">lowercase_colon_tags</span><span class="p">,</span> <span class="n">bad_char_tags</span><span class="p">,</span> <span class="n">other_tags</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
@@ -11983,11 +11895,11 @@ osm/remark                    1
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">node_lowercase_tags</span><span class="p">,</span> <span class="n">node_lowercase_colon_tags</span><span class="p">,</span> <span class="n">node_bad_char_tags</span><span class="p">,</span> <span class="n">node_other_tags</span> <span class="o">=</span> <span class="n">audit_tag_keys</span><span class="p">(</span><span class="n">MAP_PATH</span><span class="p">,</span> <span class="s2">&quot;node&quot;</span><span class="p">)</span>
-<span class="n">way_lowercase_tags</span><span class="p">,</span> <span class="n">way_lowercase_colon_tags</span><span class="p">,</span> <span class="n">way_bad_char_tags</span><span class="p">,</span> <span class="n">way_other_tags</span> <span class="o">=</span> <span class="n">audit_tag_keys</span><span class="p">(</span><span class="n">MAP_PATH</span><span class="p">,</span> <span class="s2">&quot;way&quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">node_lowercase_tags</span><span class="p">,</span> <span class="n">node_lowercase_colon_tags</span><span class="p">,</span> <span class="n">node_bad_char_tags</span><span class="p">,</span> <span class="n">node_other_tags</span> <span class="o">=</span> <span class="n">notebook_audit_methods</span><span class="o">.</span><span class="n">audit_tag_keys</span><span class="p">(</span><span class="n">MAP_PATH</span><span class="p">,</span> <span class="s2">&quot;node&quot;</span><span class="p">)</span>
+<span class="n">way_lowercase_tags</span><span class="p">,</span> <span class="n">way_lowercase_colon_tags</span><span class="p">,</span> <span class="n">way_bad_char_tags</span><span class="p">,</span> <span class="n">way_other_tags</span> <span class="o">=</span> <span class="n">notebook_audit_methods</span><span class="o">.</span><span class="n">audit_tag_keys</span><span class="p">(</span><span class="n">MAP_PATH</span><span class="p">,</span> <span class="s2">&quot;way&quot;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12006,7 +11918,7 @@ osm/remark                    1
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sorted_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">node_bad_char_tags</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -12030,8 +11942,8 @@ osm/remark                    1
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>ADDRESS_LA                   85 3320 CHERRY ST, 3018 HAMILTON ST, 9100 COLAPISSA ST, 9024 EDINBURGH ST, 9330 FOR
-FIXME                         9 verify, rough location; does 114 stop here?, Where does operation change?, Where
+<pre>ADDRESS_LA                   85 9028 EDINBURGH ST, 9016 OLEANDER ST, 9334 COLAPISSA ST, 3223 CHERRY ST, 3016 HAM
+FIXME                         9 Find out the English name and exact location, verify, can be amenity=restaurant,
 HIV                           1 Delgado STD Clinic
 Payments                      1 MasterCard, Amex, Cash, Visa, Discover, Checks
 </pre>
@@ -12044,7 +11956,7 @@ Payments                      1 MasterCard, Amex, Cash, Visa, Discover, Checks
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sorted_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">way_bad_char_tags</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -12068,24 +11980,24 @@ Payments                      1 MasterCard, Amex, Cash, Visa, Discover, Checks
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>ADDRESS_LA                   13 3034 HAMILTON ST, 3321 HAMILTON ST, 3218 HAMILTON ST, 9200 FORSHEY ST, 3018 CHER
-FIXME                         6 verify, rough alignment in places, check lanes, dual carriageway, route temporar
+<pre>ADDRESS_LA                   13 9308 OLIVE ST, 3212 HAMILTON ST, 3204 HAMILTON ST, 9200 FORSHEY ST, 9216 OLEANDE
+FIXME                         6 dual carriageway, check lanes, verify, route temporarily suspended - 12/8/2009, 
 FIXME:ncn_ref                 1 verify
 FIXME:ref                     1 verify north end
-NHD:ComID                  6845 139148525, 139182823, 139182013, 139203290, 151082898, 148744492, 139185058, 139
-NHD:Elevation                 5 0.60000000000, -2.40000000000, 0.90000000000, -3.00000000000, -2.70000000000
-NHD:FCode                    13 39001, 48300, 39800, 43612, 39009, 46003, 39004, 46600, 46006, 36900, 44500, 336
-NHD:FDate                    12 2005/12/05, 2006/09/22, 2009/01/20, 2008/07/04, 2005/10/29, 2005/01/14, 2009/01/
-NHD:FTYPE                     7 Reservoir, SwampMarsh, StreamRiver, SeaOcean, Lock Chamber, CanalDitch, LakePond
-NHD:FType                     5 Gate, Wall, StreamRiver, Lock Chamber, CanalDitch
-NHD:GNIS_ID                  12 01627482, 01628172, 00554556, 01628184, 00556548, 01627974, 01627901, 01627360, 
-NHD:GNIS_Name                11 Charley Pond, Joes Lagoon, Perdido Bayou, Sawmill Bayou, Black Bayou Lagoon, San
-NHD:Permanent_              290 151098368, 151098119, 151098266, 151098228, 151098128, 151098122, 151098243, 151
+NHD:ComID                  6845 139149733, 139202458, 139203845, 139145352, 139182494, 148744716, 139187755, 139
+NHD:Elevation                 5 0.60000000000, -2.70000000000, 0.90000000000, -2.40000000000, -3.00000000000
+NHD:FCode                    13 46006, 39009, 36900, 39004, 33600, 39001, 39800, 43612, 46600, 43609, 44500, 460
+NHD:FDate                    12 2005/01/14, 2006/09/22, 2009/01/15, 2006/05/31, 2005/10/29, 2005/12/07, 2005/08/
+NHD:FTYPE                     7 Lock Chamber, StreamRiver, Reservoir, SeaOcean, SwampMarsh, CanalDitch, LakePond
+NHD:FType                     5 StreamRiver, Wall, CanalDitch, Lock Chamber, Gate
+NHD:GNIS_ID                  12 00554556, 00560642, 01627482, 00556548, 00553673, 01627901, 01627974, 01627360, 
+NHD:GNIS_Name                11 Charley Pond, Goose Pond, Double Bayou Lagoon, Sawmill Bayou, Joes Lagoon, Black
+NHD:Permanent_              290 151098392, 151098192, 139181538, 151098194, 151098373, 151098400, 151098116, 151
 NHD:RESOLUTION                1 High
-NHD:ReachCode              5151 08090203036544, 08090203034973, 03180004019652, 8090203013068, 08090203030903, 0
+NHD:ReachCode              5151 8090203010838, 3180004010420, 03180004019466, 08090203034290, 08090203036173, 08
 NHD:Resolution                1 High
-NHD:way_id                 2379 139148525, 151082898, 139142680, 139147994, 151083400, 139149194, 139145485, 148
-NHS                           2 Interstate, yes
+NHD:way_id                 2379 139149733, 139150526, 139149756, 139145753, 139145352, 148744716, 139150024, 139
+NHS                           2 yes, Interstate
 </pre>
 </div>
 </div>
@@ -12117,7 +12029,7 @@ We will address these by forcing all the k values to lowercase when we perform o
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sorted_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">node_other_tags</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -12147,8 +12059,8 @@ currency:LTC                  1 yes
 currency:XBT                  1 yes
 generator:output:electricity          1 560 MW
 gnis:Class                    1 Populated Place
-gnis:County                   5 St. Bernard, St. Tammany, Plaquemines, Orleans, Jefferson
-gnis:County_num               5 103, 071, 051, 087, 075
+gnis:County                   5 Jefferson, Plaquemines, St. Tammany, Orleans, St. Bernard
+gnis:County_num               5 103, 051, 075, 071, 087
 gnis:ST_alpha                 1 LA
 gnis:ST_num                   1 22
 name:etymology:wikidata          1 Q8027
@@ -12175,7 +12087,7 @@ wikipedia_2                   1 ru:Памятник президенту Энд�
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sorted_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">way_other_tags</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -12203,33 +12115,33 @@ wikipedia_2                   1 ru:Памятник президенту Энд�
 cycleway:left:oneway          1 no
 cycleway:left:width           1 9&#39;
 cycleway:right:oneway          1 no
-cycleway:right:width          5 8&#39;, 12&#39;, 9, 11&#39;, 9&#39;
-destination:ref:lanes          2 LA 45|LA 45, LA 45
+cycleway:right:width          5 12&#39;, 8&#39;, 9, 9&#39;, 11&#39;
+destination:ref:lanes          2 LA 45, LA 45|LA 45
 gnis:Class                    1 Populated Place
 gnis:County                   1 Jefferson
 gnis:County_num               1 051
 gnis:ST_alpha                 1 LA
 gnis:ST_num                   1 22
 name:etymology:wikidata          1 Q8027
-name_1                       93 West Saint Avide Street, Dune St, State Street, Stephen Drive, State Route 611-1
-name_2                        7 Saint Claude Avenue, Sanctuary Drive, West Saint Jean Baptiste Street, Claiborne
-plant:output:electricity          2 959 MW, 1646 MW
+name_1                       93 Selma Avenue, South I- 10 Service Road West, Beech Drive, Belmont Place, Tracy D
+name_2                        7 Louisiana Hwy 406, South Causeway Boulevard, Sanctuary Drive, West Saint Bernard
+plant:output:electricity          2 1646 MW, 959 MW
 ref:AEFE                      1 272N15
 service:vehicle:body_repair          1 yes
 sidewalk:both:surface          1 concrete
-tiger:name_base_1           119 Cameron, State Route 39, Ford, O Hammond, Mouton, State Route 611-1, Palmetto, S
-tiger:name_base_2            15 Sanctuary, State Route 3046, Claiborne, Veterans Memorial, Highway 433, State Ro
+tiger:name_base_1           119 Medical Center, State Route 611-6, Cameron, Belmont, State, Decomine, General Co
+tiger:name_base_2            15 Louisiana Hwy 406, Claiborne, Saint Jean Baptiste, Highway 433, State Route 407,
 tiger:name_direction_prefix_1          3 N, W, S
 tiger:name_direction_prefix_2          2 W, S
 tiger:name_direction_suffix_1          2 W, E
-tiger:name_type_1            15 Pky, Expy; Blvd, Pl, Trl, Ave, Ln, Expy, Hwy, Expy:Expy; Blvd, St, Blvd:St, Blvd
-tiger:name_type_2             5 Ave, Hwy, St, Blvd, Dr
-tiger:zip_left_1             35 70124, 70127, 70129, 70130, 70118, 70123, 70125, 70113, 70003, 70114, 70094, 701
-tiger:zip_left_2             14 70119, 70114, 70127, 70129, 70043, 70085, 70131, 70126, 70461, 70123, 70092, 700
-tiger:zip_left_3              4 70092, 70131, 70461, 70121
-tiger:zip_left_4              2 70131, 70461
-tiger:zip_right_1            27 70124, 70127, 70129, 70118, 70123, 70003, 70114, 70094, 70119, 70053, 70002, 700
-tiger:zip_right_2             4 70131, 70126, 70043, 70094
+tiger:name_type_1            15 Expy:Expy; Blvd, Expy; Blvd, Pl, Hwy, Expy, Dr, St, Pky, Blvd:St, Trl, Blvd, Rd,
+tiger:name_type_2             5 Hwy, Dr, St, Blvd, Ave
+tiger:zip_left_1             35 70461, 70122, 70003, 70117, 70032, 70002, 70124, 70130, 70094, 70126, 70072, 700
+tiger:zip_left_2             14 70123, 70092, 70461, 70085, 70126, 70043, 70119, 70131, 70072, 70114, 70127, 701
+tiger:zip_left_3              4 70121, 70092, 70461, 70131
+tiger:zip_left_4              2 70461, 70131
+tiger:zip_right_1            27 70122, 70003, 70117, 70032, 70002, 70124, 70094, 70126, 70072, 70006, 70092, 700
+tiger:zip_right_2             4 70131, 70126, 70094, 70043
 tiger:zip_right_3             2 70092, 70131
 </pre>
 </div>
@@ -12263,54 +12175,10 @@ given <code>tag_key</code> (e.g. <strong>name_1</strong>) and print out the full
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_example_entities</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">tag_key</span><span class="p">,</span> <span class="n">max_results</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        finds and prints up to max_results sample Nodes / Ways / Relations</span>
-<span class="sd">        that have the specified tag key</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-        <span class="n">num_examples_found</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">ET</span><span class="o">.</span><span class="n">iterparse</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,)):</span>
-            <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;node&quot;</span><span class="p">,</span> <span class="s2">&quot;relation&quot;</span><span class="p">,</span> <span class="s2">&quot;way&quot;</span><span class="p">):</span>
-                <span class="n">found_an_example</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">example_dict</span> <span class="o">=</span> <span class="p">{}</span>
-                
-                <span class="k">for</span> <span class="n">child_tag</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">iterfind</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">child_tag</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;tag&quot;</span><span class="p">:</span>
-                        <span class="n">k_val</span> <span class="o">=</span> <span class="n">child_tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span>
-                        <span class="n">v_val</span> <span class="o">=</span> <span class="n">child_tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span>
-                        
-                        <span class="n">example_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">k_val</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
-                        <span class="n">example_dict</span><span class="p">[</span><span class="n">k_val</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v_val</span><span class="p">)</span>
-                        
-                        <span class="k">if</span> <span class="n">k_val</span> <span class="o">==</span> <span class="n">tag_key</span><span class="p">:</span>
-                            <span class="n">found_an_example</span> <span class="o">=</span> <span class="kc">True</span>
-                
-                <span class="k">if</span> <span class="n">found_an_example</span><span class="p">:</span>
-                    <span class="n">num_examples_found</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Example </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>    
-                    <span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">example_dict</span><span class="p">)</span>
-                          
-                    <span class="k">if</span> <span class="n">max_results</span> <span class="ow">and</span> <span class="p">(</span><span class="n">num_examples_found</span> <span class="o">&gt;=</span> <span class="n">max_results</span><span class="p">):</span>
-                        <span class="c1"># we have printed max_results so we are done</span>
-                        <span class="k">return</span>
- 
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_example_entities</span><span class="p">(</span><span class="n">MAP_PATH</span><span class="p">,</span> <span class="s2">&quot;name_1&quot;</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">notebook_audit_methods</span><span class="o">.</span><span class="n">print_example_entities</span><span class="p">(</span><span class="n">MAP_PATH</span><span class="p">,</span> <span class="s2">&quot;name_1&quot;</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12394,10 +12262,10 @@ Example way
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_example_entities</span><span class="p">(</span><span class="n">MAP_PATH</span><span class="p">,</span> <span class="s2">&quot;amenity_1&quot;</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">notebook_audit_methods</span><span class="o">.</span><span class="n">print_example_entities</span><span class="p">(</span><span class="n">MAP_PATH</span><span class="p">,</span> <span class="s2">&quot;amenity_1&quot;</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12445,7 +12313,7 @@ Example way
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># First look at lowercase keys for ways</span>
@@ -12470,78 +12338,78 @@ Example way
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>access                        7 customers, private, no, yes, destination, delivery, permissive
+<pre>access                        7 destination, yes, permissive, private, no, delivery, customers
 admin_level                   2 8, 6
-aeroway                       6 taxiway, runway, helipad, terminal, hangar, apron
-alt_name                     15 French Market Alley, Old Police Station, Welcome Center, Twin Span Bridge, Audub
-amenity                      48 restaurant, library, food_court, toilets, dentist, parking, place_of_worship, st
-architect                     4 Charles Moore, Emile Weil, Edward Durell Stone, DMJM
+aeroway                       6 helipad, taxiway, runway, apron, terminal, hangar
+alt_name                     15 Alcee Fortier Boulevard, Highway 433, MRGO, Goldring/Woldenberg Great Lawn, Nune
+amenity                      48 cafe, fire_station, fountain, police, fast_food, dive_centre, library, cinema, p
+architect                     4 Emile Weil, Edward Durell Stone, Charles Moore, DMJM
 area                          2 yes, no
 artist_name                   1 Multiple
-artwork_type                  2 statue, sculpture
+artwork_type                  2 sculpture, statue
 atm                           1 yes
 attribution                   1 NHD
 backrest                      1 yes
-barrier                       9 kerb, wall, fence, wire_fence, retaining_wall, gate, guard_rail, dyke, hedge
-bicycle                       4 designated, no, permissive, yes
+barrier                       9 wall, dyke, retaining_wall, gate, hedge, guard_rail, wire_fence, kerb, fence
+bicycle                       4 designated, permissive, yes, no
 boat                          2 yes, no
 border_type                   1 county
 boundary                      1 administrative
-brand                        21 Old Navy, Taco Bell, Chase, Shell, Holiday Inn, Goodwill, Homewood Suites, Honda
+brand                        21 Shell, Buffalo Wild Wings, Wendy&#39;s, Red Lobster, Raising Cane&#39;s, Honda, Arby&#39;s, 
 brewery                       1 yes
-bridge                        2 movable, yes
-building                     24 shed, church, apartments, industrial, yes, static_caravan, college, shelter, no,
+bridge                        2 yes, movable
+building                     24 garage, static_caravan, house, residential, service, detached, hospital, retail,
 bus                           1 yes
-cables                        3 9, 3, 6
-capacity                      5 2, 17 parking spaces, 5, 15, 22
+cables                        3 3, 9, 6
+capacity                      5 5, 22, 17 parking spaces, 2, 15
 charge                        1 US$ 2
 circuits                      2 1, 2
 clothes                       1 men
-construction                  2 widening, yes
+construction                  2 yes, widening
 conveying                     1 yes
-covered                       2 no, yes
-craft                         4 tailor, yes, pottery, brewery
-created_by                   12 Potlatch 0.10, Potlatch 0.10f, Potlatch 0.10e, Potlatch 0.10b, polyshp2osm-multi
+covered                       2 yes, no
+craft                         4 tailor, pottery, yes, brewery
+created_by                   12 Potlatch 0.8b, Potlatch 0.10a, Potlatch 0.10b, Potlatch 0.10d, Potlatch 0.10c, P
 crop                          1 mixed
-crossing                      3 zebra, uncontrolled, marked
-cuisine                      17 french, mexican, chicken, japanese, italian, vietnamese, burger, coffee_shop, sa
+crossing                      3 marked, zebra, uncontrolled
+cuisine                      17 french, ice_cream;chicken, regional, japanese, barbecue, seafood, italian, burge
 culvert                       1 yes
-cycleway                      6 shared, lane, buffered_lane, no, shared_lane, track
-deep_draft                    2 no, yes
-denomination                 11 baptist, greek_orthodox, orthodox, catholic, methodist, lutheran, church_of_god_
-description                  12 Emergency docking at piety st wharf, steps, Mickey Markey Park is maintained by 
-destination                  66 Baton Rouge, Causeway Boulevard;Mandeville, Ames Boulevard, Veterans Boulevard W
+cycleway                      6 track, shared_lane, lane, buffered_lane, shared, no
+deep_draft                    2 yes, no
+denomination                 11 jehovahs_witness, church_of_god_in_christ, orthodox, catholic, jewish, baptist, 
+description                  12 Very poorly maintained road, but typically used to access ferry., always the wee
+destination                  66 MacArthur Boulevard, Bonnabel Boulevard, Clearview Parkway South, Barataria Boul
 dispensing                    1 yes
 disused                       1 yes
 dog                           1 leashed
 drinking_water                1 no
 drive_through                 1 yes
 dryer                         1 yes
-ele                          13 0, -3.70000000000, 3, 2, -2.40000000000, 0.60000000000, 0.90000000000, -3.000000
+ele                          13 -3.70000000000, 1, 0, 6, 3, 0.60000000000, -2, -2.70000000000, 2, -1, 0.90000000
 electrified                   2 contact_line, no
-email                         4 theatlashouse@yahoo.com, Reservations@bienvillehouse.com, evangeline@evangelinen
+email                         4 theatlashouse@yahoo.com, evangeline@evangelinenola.com, Reservations@bienvilleho
 embankment                    2 yes, no
 emergency                     2 yes, no
-faa                           7 LS96, 7N0, LS24, LS85, LA93, 48LA, 4LA7
+faa                           7 48LA, LS85, LS24, 7N0, LS96, LA93, 4LA7
 fax                           2 504-525-6079, 04-658-6039
-fee                           2 no, yes
-fence_type                    3 chain_link, metal, railing
-fixme                         8 Needs survey., bascule bridge? max draught and height under?, access?, is this o
+fee                           2 yes, no
+fence_type                    3 railing, metal, chain_link
+fixme                         8 bascule bridge? max draught and height under?, approximate position of &#34;fixed ma
 floating                      1 yes
-foot                          4 designated, permissive, no, yes
+foot                          4 designated, permissive, yes, no
 footway                       3 sidewalk, crossing, yes
 frequency                     2 0, 60
 fut_ref                       1 I 49
 gauge                         2 1588, 1435
 gay                           1 yes
-golf                          4 green, bunker, tee, fairway
-healthcare                    6 hospital, pharmacy, rehabilitation, psychotherapist, optometrist, clinic
-height                       44 68, 100, 9, 108, 138, 30, 84, 14.5, 180, 64, 44, 25, 0.6, 3.3528, 124, 101, 162,
-heritage                      2 2, yes
+golf                          4 green, fairway, bunker, tee
+healthcare                    6 psychotherapist, optometrist, clinic, rehabilitation, pharmacy, hospital
+height                       44 36, 108, 9.7536, 110, 103, 0.6, 59, 185, 146, 64, 55, 14.5, 44, 19, 9, 124, 104,
+heritage                      2 yes, 2
 hgv                           3 designated, yes, no
-highway                      23 motorway_link, secondary, primary, trunk_link, footway, tertiary, abandoned, unc
-historic                      8 church, mansion, memorial, building, yes, cemetery, monument, battlefield
-history                       2 Retrieved from v2, Retrieved from v3
+highway                      23 track, secondary_link, unclassified, motorway_link, trunk, raceway, residential,
+historic                      8 cemetery, mansion, memorial, yes, church, building, battlefield, monument
+history                       2 Retrieved from v3, Retrieved from v2
 hoops                         2 4, 2
 horse                         3 permissive, yes, no
 hour_off                      2 20:45:00, 21:45:00
@@ -12551,29 +12419,29 @@ import_uuid                   1 bb7269ee-502a-5391-8056-e3ce0e66489c
 incline                       2 up, 0%
 industrial                    1 refinery
 intermittent                  2 yes, no
-internet_access               2 wlan, yes
-is_in                         3 St. Bernard, LA, Jefferson,Louisiana,La.,LA,USA, Orleans, LA
+internet_access               2 yes, wlan
+is_in                         3 Orleans, LA, Jefferson,Louisiana,La.,LA,USA, St. Bernard, LA
 junction                      1 roundabout
 kerb                          1 lowered
 landcover                     1 grass
-landuse                      22 institutional, industrial, yes, village_green, farmyard, reservoir, military, re
-lanes                         9 3, 4, 2, 9, 7, 8, 5, 6, 1
-layer                         8 0, 3, 4, 2, 5, -5, 1, -1
+landuse                      22 farmland, residential, village_green, cemetery, recreation_ground, institutional
+lanes                         9 4, 1, 5, 7, 6, 3, 9, 8, 2
+layer                         8 4, 1, 5, 0, 3, 2, -1, -5
 lcn                           2 proposed, yes
 lcn_ref                       1 90
-leisure                      16 sports_centre, fitness_centre, common, pitch, bleachers, swimming_pool, recreati
-length                        3 1127, 2097, 949
-level                         5 0, 2, 29, 1;2, 1
+leisure                      16 golf_course, track, pitch, sports_centre, stadium, recreation_ground, fitness_ce
+length                        3 949, 1127, 2097
+level                         5 1, 0, 1;2, 2, 29
 line                          2 busbar, bay
-lit                           2 no, yes
+lit                           2 yes, no
 loc_name                      1 Green Bridge
-location                      3 underground, outdoor, underwater
+location                      3 outdoor, underground, underwater
 lock                          1 yes
-man_made                     12 pumping_station, works, control_tower, breakwater, quay, pipeline, dyke, bridge,
-maxheight                     2 25 ft, 50 ft
-maxspeed                     11 35 mph, 55 mph, 50 mph, 70 mph, 40 mph, 25 mph, 65 mph, 60 mph, 30 mph, 45 mph, 
-maxweight                     4 5t, 5 t, 5, 10000 lbs
-maxwidth                      2 150 ft, 55 ft
+man_made                     12 bridge, dyke, works, water_tower, pumping_station, pier, levee, quay, breakwater
+maxheight                     2 50 ft, 25 ft
+maxspeed                     11 20 mph, 45 mph, 40 mph, 25 mph, 65 mph, 30 mph, 55 mph, 70 mph, 35 mph, 60 mph, 
+maxweight                     4 5, 5 t, 5t, 10000 lbs
+maxwidth                      2 55 ft, 150 ft
 military                      1 barracks
 minpassengers                 1 2
 mooring                       1 yes
@@ -12581,76 +12449,76 @@ motor_vehicle                 3 private, yes, no
 motorboat                     1 yes
 motorcar                      2 yes, no
 music                         1 recorded
-name                       5976 Rue Racine, Gelpi Avenue, Caserta, Toro Street, Elmwood Park Boulevard, Fourth S
-natural                       7 grassland, scrub, wetland, coastline, wood, water, sand
+name                       5976 Gaines Street, Florence Luling Mansion, Gordon Street, Dale Avenue, Glendale Dri
+natural                       7 wetland, water, scrub, sand, coastline, wood, grassland
 ncn_ref                       1 MRT
 noname                        1 yes
-noref                         2 no, yes
-note                         21 durning emergencies this is used as an levee access road, new three-lane bridges
-office                        9 insurance, educational_institution, government, yes, newspaper, marketing, thera
-official_name                 4 Harry Lee Expressway, The Old U.S. Mint, New Orleans Musical Legends Park, Frenc
-old_name                     23 St. Margaret&#39;s, Havana Street, Jazzland, Saint Avide Street, The Lykes Centre, S
-old_railway_operator          7 KCS, SP, MP, Southern, IC, GM&amp;O, L&amp;N
-old_ref                       6 LA 48, US 51;US 61;US 90, US 90, LA 611-2, US 51;US 61, US 11
-oneway                        4 reversible, -1, no, yes
-opening_hours                26 Tu-Fr 13:00-16:00; Sa 10:00-14:00; Su 13:00-16:00, Mo-Fr 08:00-16:00, Mo-Th 10:0
-operator                     44 St. Bernard Parish School District, United States Postal Service, Fairgrounds Ra
+noref                         2 yes, no
+note                         21 removed, path is approximate, formerly used by cars to access ferry, parallel bi
+office                        9 insurance, newspaper, marketing, yes, Co-working_Space, government, therapist, p
+official_name                 4 Harry Lee Expressway, French Quarter Visitor Center, New Orleans Musical Legends
+old_name                     23 Saint Anthony School, Etienne Debore Elementary School, Sarah Towles Reed Elemen
+old_railway_operator          7 L&amp;N, IC, KCS, MP, GM&amp;O, Southern, SP
+old_ref                       6 US 90, LA 611-2, US 51;US 61, US 11, LA 48, US 51;US 61;US 90
+oneway                        4 -1, reversible, yes, no
+opening_hours                26 Tu-Su 10:00-16:30;Mo,PH off, 24/7, Mo-Su 08:00-21:00, Mo-Su 07:00-24:00, Mo-Su 0
+operator                     44 New Orleans and Gulf Coast Railway, LASTA, KCS, Chevron, New Orleans Jazz &amp; Heri
 original                      1 yes
 park_ride                     1 yes
-parking                       2 surface, multi-storey
+parking                       2 multi-storey, surface
 passenger_lines               2 1, 2
 pastry_shop                   2 only, no
-phone                        73 504-522-0797, +1 504 899 9311, +1 504-207-6200, +1 504 454 4000, +1 504-523-7888
+phone                        73 +1-504-298-1115, +1 504 301 0117, 504-529-7800, +1 504 4860258, +1 504 702 3000,
 place                         2 islet, square
-placement                    10 transition, right_of:2, left_of:1, middle_of:4, right_of:1, middle_of:2, right_o
+placement                    10 middle_of:1, right_of:3, right_of:1, left_of:2, right_of:4, middle_of:4, middle_
 postal_code                   1 70043
-power                         5 cable, line, minor_line, plant, substation
+power                         5 cable, plant, minor_line, line, substation
 product                       1 petroleum
 proposed                      1 motorway
 public_transport              1 platform
-railway                       7 tram, abandoned, disused, platform, rail, razed, turntable
-ref                          68 LA 611-1, LA 3152, LA 46, I 910, LA 46;LA 3021, X, US 90 BUS, P, I 610, LA 45, J
-reg_name                      2 State Route 47, Louisiana Highway 46
+railway                       7 tram, disused, platform, rail, razed, turntable, abandoned
+ref                          68 406, LA 45, LA 611-3, US 61, LA 541, 226, K, 137.1, US 11, J, LA 18;LA 541, LA 4
+reg_name                      2 Louisiana Highway 46, State Route 47
 religion                      2 christian, jewish
 residential                   1 apartments
 rooftop                       1 yes
 route                         1 ferry
 segregated                    2 yes, no
-service                       9 yard, siding, spur, crossover, emergency_access, parking_aisle, alley, drive-thr
-shelter_type                  2 picnic_shelter, public_transport
+service                       9 crossover, driveway, alley, yard, siding, emergency_access, drive-through, parki
+shelter_type                  2 public_transport, picnic_shelter
 ship                          1 yes
-shop                         38 convenience, car, charity, shoes, yes, disused:mall, party, department_store, fu
-short_name                    4 NOEH, TU, FBNO, HERC
-sidewalk                      3 none, right, both
+shop                         38 bicycle, car_parts, electronics, seafood, pet, furniture, party, boutique, music
+short_name                    4 NOEH, HERC, FBNO, TU
+sidewalk                      3 both, none, right
 smoking                       3 dedicated, yes, no
-source                       21 TIGER 2014, USGS Geonames, bing, TIGER/Line® 2008 Place Shapefiles (http://www.c
-sport                        14 multi, roller_skating, motor, american_football, karting, soccer, running, baseb
-start_date                   14 1999-10-30, 1972, 1927-02-4, 1984, 1924, 1957, 1823, 1967, 1982, 1905, 1979, 201
-step_count                    2 3, 5
-substation                    3 transition, distribution, transmission
-supervised                    2 no, yes
-surface                      14 unpaved, cobblestone, dirt, concrete, grass, gravel, metal, water, paving_stones
+source                       21 NHD_import_v0.4_20091028000350, NHD_import_v0.2_20091028002820, http://www.marri
+sport                        14 roller_skating, multi, swimming, golf, basketball, tennis, beachvolleyball, amer
+start_date                   14 1984, 2010, 1978, 1999-10-30, 1924, 1957, 1982, 1905, 1979, 1967, 1983, 1972, 19
+step_count                    2 5, 3
+substation                    3 transmission, transition, distribution
+supervised                    2 yes, no
+surface                      14 asphalt, dirt, grass, gravel, concrete:plates, cobblestone, concrete:lanes, meta
 toll                          2 yes, no
-tourism                      11 aquarium, camp_site, hotel, guest_house, theme_park, zoo, hostel, motel, artwork
+tourism                      11 museum, aquarium, zoo, camp_site, motel, guest_house, theme_park, hostel, attrac
 tracktype                     1 grade2
 train                         1 yes
-tunnel                        3 culvert, building_passage, yes
+tunnel                        3 culvert, yes, building_passage
 turn                          1 left
-type                          5 gas, federal, Federal, multipolygon, Hardware Store
+type                          5 federal, multipolygon, gas, Hardware Store, Federal
 unsigned_ref                  1 I 910
-url                           4 http://stores.lowes.com/lowes/cgi/site?site=2470, http://stores.lowes.com/lowes/
-usage                         3 industrial, main, branch
+url                           4 http://www.mardigrastruckstop.com/, http://stores.lowes.com/lowes/cgi/site?site=
+usage                         3 industrial, branch, main
 vehicle                       1 no
-voltage                       3 230000;115000, 115000, 230000
+voltage                       3 230000;115000, 230000, 115000
 washing_machine               1 yes
-water                         3 canal, lake, pond
-waterway                      9 lock, river, drain, stream, canal, weir, lock_gate, riverbank, ditch
-website                     129 http://eastoverproperties.org/, https://www.walmart.com/store/912/new-orleans-la
+water                         3 canal, pond, lake
+waterway                      9 canal, stream, lock, lock_gate, river, drain, ditch, riverbank, weir
+website                     129 https://bienvillehouse.com/, https://mcdonogh42-no.org/, https://chalmetterefini
 wheelchair                    2 limited, yes
-width                         6 3, 4, 2, 23, 46, 1.5
+width                         6 4, 1.5, 3, 46, 2, 23
 wifi                          1 yes
-wikidata                     84 Q6801251, Q172430, Q3002486, Q34814493, Q3157436, Q4820263, Q15755343, Q7720883,
-wikipedia                    63 en:2 Canal Street, en:Royal Street, New Orleans, en:Charity Hospital (New Orlean
+wikidata                     84 Q579088, Q8024588, Q167538, Q4839767, Q7190411, Q20899647, Q195919, Q3077981, Q7
+wikipedia                    63 en:Tulane University, en:Windsor Court Hotel, en:New Orleans Mint, fr:Liste de p
 zoo                           1 insectarium
 </pre>
 </div>
@@ -12662,7 +12530,7 @@ zoo                           1 insectarium
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Now look at lower case keys for nodes</span>
@@ -12687,158 +12555,158 @@ zoo                           1 insectarium
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>access                        5 customers, private, yes, no, permissive
+<pre>access                        5 yes, permissive, no, private, customers
 aeroway                       3 helipad, holding_position, aerodrome
-alt_name                     19 The Ruby Slipper Café, Stanley *, Chipotle Mexican Grill, Sbisa&#39;s Cafe, Louisian
-amenity                      64 car_rental, kindergarten, restaurant, library, Emergeny Base Logistics, food_cou
+alt_name                     19 NOLA MERCHANDISE, Tastee Donuts, Optical Shop of New Orleans, Bienville monument
+amenity                      64 cafe, fire_station, Jazz Club, fountain, Emergeny Base Logistics, biergarten, ki
 artist                        1 Clark Mills
-artist_name                  14 Eric Kaposta, Franco Alessandrini, Madeleine Faust, Yaacov Agam, Enrique Alferez
-artwork_type                  4 statue, sculpture, painting, mural
-atm                           2 no, yes
+artist_name                  14 Franco Alessandrini, Yaacov Agam, Madeleine Faust, Enrique Alferez, Terry Weldin
+artwork_type                  4 sculpture, mural, statue, painting
+atm                           2 yes, no
 attribution                   1 USGS 2001 County Boundary
 automated                     1 yes
 backrest                      1 yes
-barrier                       8 block, gate, guard_rail, yes, lift_gate, entrance, swing_gate, bollard
+barrier                       8 bollard, lift_gate, entrance, yes, block, gate, guard_rail, swing_gate
 beauty                        3 nails, hair_removal, spa
-bench                         2 no, yes
-bicycle                       2 no, yes
-bicycle_parking               3 rack, stands, wall_loops
+bench                         2 yes, no
+bicycle                       2 yes, no
+bicycle_parking               3 wall_loops, stands, rack
 bin                           1 yes
 board_type                    1 history
-brand                        74 Office Depot, Best Buy, Massage Envy, Chick-fil-A, Taco Bell, Whole Foods Market
+brand                        74 Exxon, Shell, Guitar Center, Buffalo Wild Wings, The Children&#39;s Place, Independe
 brewery                       1 yes
-building                      2 shed, yes
+building                      2 yes, shed
 bus                           1 yes
 button_operated               1 yes
-capacity                     11 20, 25, 50, 3, 4, 2, 10, 55, 8, 6, 1
+capacity                     11 4, 1, 10, 50, 20, 6, 3, 25, 8, 2, 55
 cargo                         1 Passenger
 closest_town                  1 New Orleans, Louisiana
-clothes                       8 underwear, wedding, children, hat, suits, hats, women, costumes
+clothes                       8 children, costumes, wedding, hat, underwear, hats, suits, women
 collection_times              1 Mo-Fr 13:15; Sa 13:30
 construction                  1 attraction
-country                       2 DE, MX
-covered                       2 no, yes
-craft                        12 weaver, milliner, painter, brewery, dressmaker, cooking, electronics_repair, pho
-created_by                    4 Potlatch 0.10e, Potlatch 0.10b, JOSM, Potlatch 0.10f
-crossing                      8 traffic_signals, uncontrolled, zebra, marked, unmarked, sidewalk, walking_path, 
-cuisine                      65 chicken, vietnamese, jamaican, Southern Food, american, chinese, caribbean, juic
+country                       2 MX, DE
+covered                       2 yes, no
+craft                        12 pottery, cooking, distillery, photographer, painter, electronics_repair, jewelle
+created_by                    4 Potlatch 0.10b, Potlatch 0.10f, JOSM, Potlatch 0.10e
+crossing                      8 Sidewalk, uncontrolled, sidewalk, unmarked, marked, zebra, walking_path, traffic
+cuisine                      65 thai, american;burger;mediterranean, steak_house, breakfast, barbecue;american, 
 cycleway                      1 asl
 delivery                      2 yes, no
-denomination                 13 episcopal, baptist, Church_of_Christ, catholic, methodist, reform, lutheran, rom
-description                  50 Mississippi River at General Anchorage. Mile 90, Inside the New Orleans Healing 
+denomination                 13 roman_catholic, protestant, jehovahs_witness, lutheran, catholic, reform, pentec
+description                  50 both ways, American Grill &amp; Wingery, French Quarter Sports Bar, Kitchen ⚜ Tap, 1
 design                        2 monopolar, h-frame
-designation                   4 bar, gas, car wash, Investment Banking &amp; training branch
+designation                   4 Investment Banking &amp; training branch, car wash, bar, gas
 diplomatic                    1 consulate
 dispensing                    1 yes
 dog                           1 yes
-drive_through                 2 no, yes
-ele                           9 0, 3, 4, 2, 5, -2, 1, -3, -1
-email                        31 info@snugjazz.com, info@earthodysseynola.com, CrystalMenagerieNoLa@yahoo.com, la
+drive_through                 2 yes, no
+ele                           9 4, 0, 1, 5, 3, -2, -3, 2, -1
+email                        31 bareleather@gmail.com, lawrence@saintlawrencenola.com, info@attikineworleans.com
 emergency                     1 no
-entrance                      3 exit, main, yes
+entrance                      3 exit, yes, main
 faa                           1 NEW
 facebook                      1 ozneworleans
-fax                          13 +1 504 5255900, 504-309-5963, +1 504 2187884, 504 566-7224, +1 504 8657628, (504
+fax                          13 504-522-2331, 504-682-4477, +1 504-208-3751, +1 504-361-3185, +1 504 522 0054, +
 fee                           2 yes, no
 fixme                         2 please explain : keel = 0, yes
-foot                          3 permissive, no, yes
+foot                          3 permissive, yes, no
 gay                           1 yes
 guest_house                   1 bed_and_breakfast
-healthcare                    8 alternative, hospital, pharmacy, urgent_care, chiropractor, dentist, doctor, cli
+healthcare                    8 chiropractor, urgent_care, alternative, clinic, doctor, dentist, pharmacy, hospi
 height                        1 50
-highway                      10 traffic_signals, elevator, crossing, stop, turning_loop, bus_stop, rest_area, sp
-historic                      9 cafe, ruins, memorial, war_memorial, yes, house, tomb, cannon, monument
+highway                      10 crossing, rest_area, speed_camera, turning_circle, bus_stop, motorway_junction, 
+historic                      9 cafe, memorial, yes, house, cannon, ruins, tomb, war_memorial, monument
 horse                         1 yes
 iata                          1 NEW
 icao                          1 KNEW
 import_uuid                   1 bb7269ee-502a-5391-8056-e3ce0e66489c
 indoor                        1 yes
 information                   2 board, office
-inscription                  13 Bernardo de Gàlvez, 1746-1786 Fourth Spanish Royal Governor of Louisiana, Martin
-internet_access               3 wlan, no, yes
-is_in                         5 Orleans,Louisiana,La.,LA,USA, St. Tammany,Louisiana,La.,LA,USA, Jefferson,Louisi
+inscription                  13 These trees once stood erect. Their current state is a vivid reminder of the inc
+internet_access               3 yes, no, wlan
+is_in                         5 Plaquemines,Louisiana,La.,LA,USA, St. Tammany,Louisiana,La.,LA,USA, Jefferson,Lo
 junction                      1 roundabout
 kerb                          2 lowered, yes
 landmark                      3 radar_scanner, statue, spire
-landuse                       3 recreation_ground, military, quarry
+landuse                       3 military, recreation_ground, quarry
 layer                         1 2
-leisure                      13 sports_centre, fitness_centre, theatre, pitch, stadium, laser_tag, playground, g
-level                         5 0, SUITE_224_|_inside_The_Healing_Center_second_floor_upper, 1, 0-1, 0-2
+leisure                      13 dog_park, golf_course, laser_tag, sports_centre, pitch, stadium, fitness_centre,
+level                         5 1, 0, SUITE_224_|_inside_The_Healing_Center_second_floor_upper, 0-1, 0-2
 lgbtq                         1 primary
 lit                           1 yes
 loc_name                      1 Touchdown Jesus
 local_ref                     1 39
-man_made                      9 tower, antenna, works, mast, obelisk, water_tower, chimney, flagpole, mine
-material                      4 bronze, cement, statue=bronze;plinth=granite, marble
-memorial                      3 statue, plaque, war_memorial
-microbrewery                  2 no, yes
+man_made                      9 chimney, obelisk, water_tower, works, flagpole, mine, mast, antenna, tower
+material                      4 statue=bronze;plinth=granite, cement, bronze, marble
+memorial                      3 statue, war_memorial, plaque
+microbrewery                  2 yes, no
 military                      1 barracks
 monument                      1 statue
 motor_vehicle                 1 no
 motorcycle                    1 yes
-name                       3445 Holy Name of Mary School, The Historic New Orleans Collection - Williams Researc
-natural                       5 bay, tree, beach, wetland, peak
+name                       3445 Holy Cross School, McDonogh Number 37 School, Champion, West Lake, UAL, New Hope
+natural                       5 bay, peak, wetland, tree, beach
 network                       3 Amtrak, NORTA, JeT
 noexit                        1 yes
 noref                         1 yes
-note                         33 One-way gate Exit only, Bike Easy, Record &lt;a href=&#34;http://tin.er.usgs.gov/minepl
-office                       15 insurance, coworking, travel_agent, notary, yes, administrative, vacant, employm
+note                         33 Record &lt;a href=&#34;http://tin.er.usgs.gov/mineplant/show.php?labno=4686&#34;&gt;4686&lt;/a&gt; o
+office                       15 vacant, insurance, lawyer, travel_agent, radio_station, yes, company, notary, es
 official_name                 2 Hennes &amp; Mauritz AB, United Apparel Liquidators
-old_name                     23 Louise S. Davis Developmental Center, East New Orleans Regional Branch Library, 
+old_name                     23 Exxon, Shell, Westbank Christian Center Preschool, Circuit City, Royal St Deli, 
 old_ref                       1 229
 open                          1 13:00-05:00
-opening_hours               157 Mo-Sa 11:00-19:00; Su 12:00-18:00, 11:00-22:00, Mo-Su 06:00-22:00, Mo 10:00-15:0
-operator                     43 Secretaría de Relaciones Exteriores, Amir Mehrabani / Moe, Elroy Boasso, UNO Fed
+opening_hours               157 10:00-06:00, 10:00-18:00, Tu-Sa 11:00-22:00; Su 11:00-16:00, 20:00-23:00, Mo-Su 
+operator                     43 Amir Mehrabani / Moe, Paul Sumner, Delgado Community College, Jefferson Parish D
 organic                       1 yes
-outdoor_seating               2 no, yes
+outdoor_seating               2 yes, no
 parking                       2 surface, multi-storey
 payment                       1 Cash, Credit, Debit, AmEx, Disc, Mastercard, Visa, Trade
-phone                       304 +1 504 2524801, +1 504 9446800, (504) 587-3756, +1 504-523-9656, +1 504 8224011,
-place                        10 village, city, island, suburb, locality, town, county, islet, neighbourhood, ham
+phone                       304 5043097719, +1 504 5226746, +1 504 5667191, (504) 588-2846, +1 504 4860258, (504
+place                        10 locality, town, islet, neighbourhood, county, suburb, village, hamlet, city, isl
 playground                    1 structure
-population                    6 10003, 9242, 16285, 391495, 16751, 59995
-power                         6 tower, generator, link, transformer, pole, portal
+population                    6 16285, 391495, 16751, 59995, 10003, 9242
+power                         6 portal, transformer, pole, link, generator, tower
 public_transport              3 station, platform, stop_position
 quantity                      1 2
-railway                      10 traffic_signals, buffer_stop, crossing, tram_stop, traffiic_signals, switch, jun
-ref                          64 239, 4B, 11A, 1A, 2B, 236B, 5551, 240B, 9, 2, 7, 240A, 245, 5, 230, 246A;246B, N
+railway                      10 crossing, level_crossing, tram_stop, buffer_stop, railway_crossing, station, swi
+ref                          64 5551, 1B, 226, 239, 246B, 248, 234C, 246A-B, 246A, 2B, 241, 4, NOL, 236C, 254, 2
 religion                      2 christian, jewish
 rental                        1 only
 route_ref                     1 W2;W3;WSL
 self_service                  1 yes
 service                       1 parts
-shelter                       2 no, yes
+shelter                       2 yes, no
 shelter_type                  1 picnic_shelter
-shop                         82 chemist, deli, antiques, convenience, car, second_hand, shoes, laundry, wholesal
+shop                         82 laundry, bicycle, second_hand, car_parts, pottery, cosmetics, Marine Cargo Conta
 smoking                       2 outside, no
 social_facility               1 outreach
-source                       19 http://www.marriott.com/hotels/travel/msycn-courtyard-new-orleans-downtown-conve
+source                       19 local knowledge, https://en.m.wikipedia.org/wiki/Angela_Gregory, USGS Geonames, 
 source_ref                    1 geonames.usgs.gov
-sport                         4 fitness;dance, weightlifting;crossfit, baseball, bowls
-start_date                   21 1938, 1984, 1955, 1992-05-20, 2010, 2003-06, 1991, 1856-02-09, 1893, 1897, 1856,
+sport                         4 bowls, fitness;dance, weightlifting;crossfit, baseball
+start_date                   21 1899, 1906, 1983, 1894, 2003-06, 1984, 1856-02-09, 1803, 1995-03-19, 1893, 1856,
 studio                        2 video, radio
 supervised                    1 yes
 surface                       1 paved
 tactile_paving                1 no
-takeaway                      2 only, yes
+takeaway                      2 yes, only
 target                        1 US
 telephone                     1 +1 504-841-0004
-tourism                      15 gallery, viewpoint, construction, apartment, guest_house, hotel, yes, motel, hos
-traffic_calming               2 bump, table
+tourism                      15 statue, museum, construction, yes, apartment, viewpoint, motel, guest_house, pic
+traffic_calming               2 table, bump
 traffic_signals               1 signal
 train                         1 yes
 tram                          1 yes
 type                          1 public
-url                           4 http://stores.lowes.com/lowes/cgi/site?site=2690, http://www.johnnyspoboy.com, h
-user_defined_other            2 makerspace, path
+url                           4 http://stores.lowes.com/lowes/cgi/site?site=1085, http://stores.lowes.com/lowes/
+user_defined_other            2 path, makerspace
 vehicle                       2 private, no
 vending                       1 drinks
-waterway                      6 lock, weir, dam, lock_gate, dock, waterfall
-website                     388 http://oldpointbar.com, http://angelobrocatoicecream.com, http://maryjanesempori
-wheelchair                    4 limited, permissive, no, yes
+waterway                      6 lock, lock_gate, waterfall, dock, dam, weir
+website                     388 http://www.kernstudios.com, http://judeshrine.com/, http://www.ZitzmannLaw.com, 
+wheelchair                    4 limited, permissive, yes, no
 wifi                          2 free, no
-wikidata                     86 Q6840675, Q5519049, Q3180923, Q5025904, Q602939, Q7590087, Q5533650, Q337779, Q3
-wikipedia                    35 en:Gretna, Louisiana, en:Immaculate Conception Church (New Orleans), en:Preserva
+wikidata                     86 Q1855134, Q1105886, Q6693664, Q1765308, Q7808836, Q4961234, Q6550920, Q34902595,
+wikipedia                    35 en:Chalmette, Louisiana, en:Spanish Fort, New Orleans, en:Café du Monde, en:Gold
 year                          1 1989
 </pre>
 </div>
@@ -12861,7 +12729,7 @@ year                          1 1989
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sorted_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">way_lowercase_colon_tags</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -12887,78 +12755,78 @@ year                          1 1989
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>abandoned:railway             1 rail
 abandoned:tourism             1 theme_park
-addr:city                    16 Gretna, Metaire, Elmwood, New Orleans, LA, Metairie, New Oreleans, Harahan, Bell
+addr:city                    16 Marrero, Harahan, Gretna, Jefferson, Metairie, New Oreleans, Avondale, Belle Cha
 addr:country                  2 UA, US
-addr:full                     2 6000 Bullard Ave, 99 Westbank Expy
-addr:housename                2 Arabella Station, Bagneris Home
-addr:housenumber           8908 2155, 7051, 5319, 5877, 4853, 7353, 4386, 7646, 100 G, 1149, 7406, 5774, 1010, 1
-addr:postcode                30 70112-2625, 70112, 70124, 70127, 70130, 70118, 70123, 70113, 70003, 70114, 70094
-addr:state                    4 lA, Louisiana, la, LA
-addr:street                1998 Elmwood Park Boulevard, English Turn Lane, Le Boeuf Street, Forshey Street, Will
+addr:full                     2 99 Westbank Expy, 6000 Bullard Ave
+addr:housename                2 Bagneris Home, Arabella Station
+addr:housenumber           8908 8503, 9956, 8602, 3441, 9017, 6191, 8937, 6093, 3774, 13191, 9980, 4859, 26277, 
+addr:postcode                30 70003, 70032, 70117, 70002, 70124, 70130, 70094, 70126, 70112-2625, 70072, 70006
+addr:state                    4 LA, Louisiana, lA, la
+addr:street                1998 West Alba Street, Gaines Street, Saint Anthony Street, Quince Street, A P Tureau
 addr:unit                     1 115
 amenity:bar                   1 yes
 amenity:historic              1 hospital
-brand:wikidata               32 Q2735242, Q10397787, Q524629, Q7500392, Q735942, Q630866, Q846301, Q752941, Q207
-brand:wikipedia              13 en:Goodwill Industries, en:Red Lobster, en:CVS Pharmacy, en:Chase Bank, en:Raisi
-bridge:movable                2 drawbridge, bascule
+brand:wikidata               32 Q2735242, Q154950, Q10397787, Q846301, Q483551, Q38076, Q37158, Q1047239, Q19604
+brand:wikipedia              13 en:Buffalo Wild Wings, en:Starbucks, en:Capital One, en:Chase Bank, en:Raising C
+bridge:movable                2 bascule, drawbridge
 bridge:name                   1 Paris Road Bridge
 building:architecture          1 arts_and_crafts
-building:levels              38 14, 2, 9, 30, 7, 48, 5, 32, 33, 22, 49, 45, 3, 4, 39, 29, 13, 16, 18, 35, 8, 51,
+building:levels              38 49, 10, 22, 45, 48, 39, 4, 42, 18, 32, 28, 20, 19, 14, 9, 17, 8, 15, 30, 11, 5, 
 building:material             1 glass
 building:min_height           1 10
 building:part                 2 roof, yes
 building:retail               1 yes
 capacity:disabled             1 yes
-change:lanes                  3 no|, ||no, no||
-contact:email                 2 info@jeffersonpac.com, ecolefrancoamericaine_no@yahoo.com
+change:lanes                  3 ||no, no||, no|
+contact:email                 2 ecolefrancoamericaine_no@yahoo.com, info@jeffersonpac.com
 contact:fax                   1 504-731-4723
-contact:phone                 4 +1 504 896 7200, +1 504 734 1740, +1 504 899 9511, 504-731-4700
-contact:website               4 https://jeffersonpac.com/contact-us/, http://riveroakshospital.com/, www.bacchan
+contact:phone                 4 +1 504 734 1740, +1 504 899 9511, +1 504 896 7200, 504-731-4700
+contact:website               4 www.bacchanalwine.com, http://riveroakshospital.com/, http://www.chnola.org/, ht
 cyceway:right                 1 track
-cycleway:left                 3 shared_lane, track, lane
-cycleway:right                5 lane, buffered_lane, share_busway, shared_lane, track
-destination:backward         20 South St Patrick Street, South Alexander Street, Lasalle Street, South Hennessey
-destination:forward          23 North Genois Street, Marais Street, North St Patrick Street, North Scott Street,
-destination:lanes             4 South Causeway Boulvard|New Orleans;Baton Rouge, Barataria Blvd, Barataria Blvd|
-destination:ref              25 LA 47 North, LA 428 East, I 610, LA 428 West, LA 45, US 90 Business East, US 90 
-destination:street           22 Almonaster Boulevard East, Downman Road, Read Boulevard, Chef Highway, Louisa St
-disused:amenity               2 school, hospital
+cycleway:left                 3 track, shared_lane, lane
+cycleway:right                5 share_busway, track, shared_lane, lane, buffered_lane
+destination:backward         20 South Hennessey Street, South Roman Street, South Alexander Street, South Rendon
+destination:forward          23 North Alexander Street, North White Street, North Rendon Street, Marais Street, 
+destination:lanes             4 New Orleans;Baton Rouge, Barataria Blvd|Barataria Blvd, Barataria Blvd, South Ca
+destination:ref              25 LA 45, US 61, US 90 West, US 11, LA 47 North, I 10, US 61 South, US 90 East, LA 
+destination:street           22 Orleans Avenue, Canal Boulevard, Downman Road, Crowder Boulevard, General deGaul
+disused:amenity               2 hospital, school
 disused:power                 1 plant
 disused:railway               1 rail
 disused:route                 1 ferry
 fuel:diesel                   1 yes
 generator:method              1 combustion
 generator:type                1 steam_generator
-gnis:county_id                3 087, 071, 051
-gnis:county_name              3 St. Bernard, Orleans, Jefferson
-gnis:created                 16 01/1/2018, 08/01/1993, 06/01/1993, 01/01/2000, 03/01/1994, 05/01/1994, 06/04/198
-gnis:edited                   3 01/21/2006;09/22/2008, 09/22/2008, 01/21/2006
-gnis:feature_id             222 555279, 553790, 549813, 550490, 549937, 556262, 546765, 549802, 2429382, 2493543
+gnis:county_id                3 051, 087, 071
+gnis:county_name              3 Orleans, Jefferson, St. Bernard
+gnis:created                 16 06/04/1980, 05/01/1994, 05/28/2008, 11/01/1992, 01/23/2006, 06/01/1993, 09/26/20
+gnis:edited                   3 09/22/2008, 01/21/2006;09/22/2008, 01/21/2006
+gnis:feature_id             222 549938, 550499, 535604, 2429382, 550395, 546814, 535528, 549912, 550543, 550645,
 gnis:id                       1 557533
 gnis:import_uuid              1 57871b70-0100-4405-bb30-88b2e001a944
 gnis:reviewed                 1 no
 gnis:state_id                 1 22
-healthcare:speciality          4 surgery, psychotherapy, psychiatry, paediatrics
+healthcare:speciality          4 psychiatry, paediatrics, psychotherapy, surgery
 heritage:operator             1 nrhp
-hgv:conditional               3 no @ (maxweight&gt;=5), no @ (maxweight &gt;5), no @ (weight&gt;5 tonne)
+hgv:conditional               3 no @ (maxweight &gt;5), no @ (weight&gt;5 tonne), no @ (maxweight&gt;=5)
 hgv:national_network          1 yes
 internet_access:fee           2 yes, no
-junction:ref                 18 11A, 4B, 232, 226, 228, 9, 229, 7, 8, 5, 231B, 12A, 6, 9A, 4A, 246A, 246B, 231A
+junction:ref                 18 231B, 5, 232, 11A, 4A, 4B, 229, 7, 226, 246B, 12A, 6, 9, 228, 8, 246A, 231A, 9A
 krewe:name                    1 Zulu
 lanes:forward                 1 1
-loc_name:vi                   3 Cầu Con Cò, Cầu Con Cò (Làn Xe Chở Nhiều Người), Cầu Huỳnh Phi Long
-maxspeed:advisory             6 35 mph, 50 mph, 40 mph, 25 mph, 30 mph, 45 mph
+loc_name:vi                   3 Cầu Con Cò (Làn Xe Chở Nhiều Người), Cầu Huỳnh Phi Long, Cầu Con Cò
+maxspeed:advisory             6 45 mph, 40 mph, 25 mph, 30 mph, 35 mph, 50 mph
 name:de                       2 Tulane-Universität, Tad Gormley Stadion
-name:en                       9 Gallery Cayenne, Tad Gormley Stadium, Dong Phuong Oriental Bakery, Crescent City
+name:en                       9 Dong Phuong Restaurant, Tad Gormley Stadium, Gallery Cayenne, Crescent City Conn
 name:eo                       1 Misisipo
-name:fr                      10 Rue Chartres, Parc Louis Armstrong, Rue Sainte Anne, Rue Conti, Rue Saint Pierre
+name:fr                      10 Galerie Cayenne, Rue Iberville, Rue Bourbon, Rue Sainte Anne, Rue Chartres, Rue 
 name:it                       1 Piazza d&#39;Italia
 name:pronunciation            2 ˈmiʃu ˈbʊləvɑɹd, ˈmiʃu fəˈsɪlɪti ˈɹoʊd
 name:ru                       1 Тулейнский университет
 name:uk                       1 Університет Нового Орлеана
-name:vi                      11 Tiệm Đông Phương, Đường Kim, Đường Mỹ Việt, Nhà thờ Maria Nữ Vương Việt Nam, Đườ
+name:vi                      11 Đường Kim, Đường Tự Do, Đường Mỹ Việt, Nhà thờ Maria Nữ Vương Việt Nam, Đường Sà
 note:lanes                    1 1 eastbound, 2 westbound
-note:old_railway_operator         10 New Orleans and Lower Coast, Louisiana Southern, ML&amp;T, CStL&amp;NO, Y&amp;MV, New Orlean
+note:old_railway_operator         10 New Orleans Terminal, Y&amp;MV, CStL&amp;NO, ML&amp;T, Louisiana Southern, T&amp;P, LR&amp;N, New Or
 old_name:es                   1 Plaza de Armas
 old_name:fr                   1 Place d&#39;Armes
 oneway:bicycle                2 yes, no
@@ -12967,32 +12835,32 @@ operator:wikidata             1 Q16979157
 payment:bitcoin               1 yes
 plant:source                  1 gas
 railway:traffic_mode          1 freight
-ref:nrhp                      2 75000856, 86000254
-ref:walmart                   4 912, 5022, 5102, 909
+ref:nrhp                      2 86000254, 75000856
+ref:walmart                   4 909, 912, 5022, 5102
 roof:direction                1 N
-roof:height                   3 82.3, 15, 14.72
-roof:shape                    3 dome, skillion, gabled
+roof:height                   3 15, 14.72, 82.3
+roof:shape                    3 gabled, skillion, dome
 source:deep_draft             1 National Transportation Atlas Database 2011
-source:name                   2 2012 US Census Tiger/Line Shapefiles (All Roads, Orleans Parish), OSM US TIGER 2
+source:name                   2 OSM US TIGER 2012 Roads Overlay, 2012 US Census Tiger/Line Shapefiles (All Roads
 subject:wikidata              1 Q4549662
 subject:wikipedia             1 en:141st Field Artillery Regiment
-tiger:cfcc                   73 A25; A41, A41:A63, A39, A45:A45;A41, A41;A35, A15:A19; A15, A15:A63; A15, A29, A
-tiger:county                 20 Jefferson, LA:Jefferson, LA; Orleans, LA, Plaquemines, LA:St. Bernard, LA, Jeffe
-tiger:name_base            3677 Rue Racine, Bertrand, Endston, Chimney Wood, Kings, Caserta, Lapeyrouse, Shirmai
-tiger:name_direction_prefix          4 N, E, W, S
+tiger:cfcc                   73 A31; A45, A31:A41, A31:A63, A31; A35, A45;A41, A31; A31; A45, A35; A41, A41; A63
+tiger:county                 20 St. Tammany, LA; Orleans, LA, St. Tammany, LA, St. Bernard, LA, Jefferson, LA:St
+tiger:name_base            3677 Cherokee, Bauvais, Rufin, El Dorado, Blair, Desire, Van Cleave, Cherlyn, Melvile
+tiger:name_direction_prefix          4 N, W, E, S
 tiger:name_direction_suffix          4 N, W, E, S
-tiger:name_type              35 Blvd:Dr, Plz, Arc, Ln, Trce, Dr;Hwy, Dr;Rd, Ave:Ave;St, Cir, Blvd:Expy, Cswy, Pk
+tiger:name_type              35 Trce, Cir, St;Ave, Ave:St, Ave:Ave;St, St, Plz, Blvd:St, Blvd, Ave, Arc, Pl, Exp
 tiger:reviewed                2 yes, no
 tiger:separated               2 yes, no
 tiger:source                  1 tiger_import_dch_v0.6_20070813
-tiger:tlid                 2324 191743733, 191752619, 111193275, 111200126, 93532553:93520337:93541442:93541443:
-tiger:upload_uuid             6 bulk_upload.pl-236c7a2a-a36b-4659-ba50-97752ed5c12f, bulk_upload.pl-df8b8072-962
-tiger:zip_left               52 70117:70119, 70116:70119, 70112, 70124, 70127, 70129, 70130, 70113;70125, 70118,
-tiger:zip_right              43 70117:70119, 70116:70119, 70112, 70124, 70127, 70129, 70130, 70113;70125, 70118,
+tiger:tlid                 2324 191755171, 111181802:111181786:111193409:111181952, 191748258, 191743785, 191724
+tiger:upload_uuid             6 bulk_upload.pl-236c7a2a-a36b-4659-ba50-97752ed5c12f:bulk_upload.pl-6e02d268-7653
+tiger:zip_left               52 70461, 70122, 70003, 70117, 70032, 70002, 70116:70119, 70001:70005, 70124, 70130
+tiger:zip_right              43 70461, 70122, 70003, 70117, 70032, 70002, 70116:70119, 70001:70005, 70124, 70130
 toll:backward                 1 no
 toll:forward                  1 yes
 tunnel:name                   1 Harvey Tunnel
-turn:lanes                   26 left;through||, through|slight_left;slight_right|right, ||through|right, none|no
+turn:lanes                   26 left|left||||, ||right, left|, ||merge_to_left, slight_right|through|slight_left
 was:building                  1 yes
 wikipedia:en                  2 2_Canal_Street, St._Charles_Streetcar_Line
 </pre>
@@ -13005,7 +12873,7 @@ wikipedia:en                  2 2_Canal_Street, St._Charles_Streetcar_Line
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sorted_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">node_lowercase_colon_tags</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -13030,58 +12898,58 @@ wikipedia:en                  2 2_Canal_Street, St._Charles_Streetcar_Line
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>abandoned:man_made            1 lighthouse
-addr:city                    17 Gretna, Terrytown, Metaire, Westwego, Meraux, Elmwood, New Orleans, LA, New Orle
+addr:city                    17 Marrero, Terrytown, Chalmette, Harahan, Gretna, Metairie, New Oreleans, Harvey, 
 addr:country                  1 US
-addr:full                     6 1501 Manhattan Blvd, 5110 Jefferson Hwy, 2500 Archbishop Hannan Blvd, 4001 Behrm
-addr:housename                9 Aframe, 1555 Poydras, Patio, Homestead, Subway, New Orleans City Park Volunteer 
-addr:housenumber           6685 2155, 5319, 5877, 4853, 7646, 7406, 1010, 1615, 7040, 8926, 2279, 2906, 5550, 90
+addr:full                     6 1501 Manhattan Blvd, 4301 Chef Menteur Highway, 4810 Lapalco Blvd, 4001 Behrman 
+addr:housename                9 Patio, Aframe, Chase Bank, Fritzel&#39;s - Traditional Jazz Club, Homestead, Malbrou
+addr:housenumber           6685 8503, 8602, 14417, 3441, 9017, 8937, 3774, 3869, 4859, 7818, 5214, 7055, 5230, 1
 addr:interpolation            2 200, 600
 addr:place                    1 Suite 500
-addr:postcode                37 70112, 70124, 70127, 70130, 70118, 70125, 70123, 70113, LA 70117, 70003, 70114, 
-addr:state                    3 La, Louisiana, LA
-addr:street                1294 Jasmine Street, Rue Colette, Vixen Street, Revel Street, Octavia St, Le Boeuf St
-addr:unit                    31 1A, 100, 245, 2019, Suite 29-2959, 107, #1825, Suite 2, Suite 100, 3, 101, Suite
+addr:postcode                37 70122, 70003, 70117, 70002, 70012, 70124, 70130, 70170, 70094, LA 70116, 70126, 
+addr:state                    3 LA, Louisiana, La
+addr:street                1294 Sail Street, Saint Anthony Street, Prentiss Avenue, Quince Street, A P Tureaud A
+addr:unit                    31 Suite B, 110, #1825, Suite 1, Suite A-2, Suite 100, Suite 2, B, #A, 118, Suite A
 aeroway:historic              1 helipad
 alt_name:en                   1 Saint Thomas Thien School of Religion
 alt_name:vi                   2 Đền Thờ Quốc Tổ, Trường Thánh Tôma Thiện
 amenity:bar                   1 yes
-amenity:historic              7 place_of_worship, hospital, restaurant, library, fuel, fast_food, school
+amenity:historic              7 school, fuel, library, place_of_worship, fast_food, restaurant, hospital
 artist:wikidata               1 Q2975653
 artist:wikipedia              2 George_Rodrigue, en:Clark Mills (sculptor)
-brand:wikidata               72 Q1373493, Q177054, Q7405065, Q584601, Q715583, Q2945643, Q2589409, Q7827120, Q54
-brand:wikipedia              66 en:Costco, en:Royal Dutch Shell, en:Bath &amp; Body Works, en:AT&amp;T Mobility, en:Hall
+brand:wikidata               72 Q21463374, Q6168434, Q810773, Q621532, Q919641, Q3419341, Q154950, Q177054, Q135
+brand:wikipedia              66 en:AT&amp;T Mobility, en:Chipotle Mexican Grill, en:Lowe&#39;s, en:Raising Cane&#39;s Chicke
 building:architecture          1 arts_and_crafts
 building:levels               2 1, 2
-census:population             3 9242;2006, 10003;2006, 16285;2006
+census:population             3 9242;2006, 16285;2006, 10003;2006
 commemorates:wikidata          1 Q5716083
-contact:email                 4 OzNewOrleans@bellsouth.net, info@neworleanssecurityguards.net, info@bourbonpub.c
-contact:facebook              5 https://www.facebook.com/BigDaddysBar/, https://www.facebook.com/700ClubNewOrlea
+contact:email                 4 OzNewOrleans@bellsouth.net, info@700clubneworleans.com, info@bourbonpub.com, inf
+contact:facebook              5 https://www.facebook.com/BigDaddysBar/, https://www.facebook.com/mushroomnola, h
 contact:fax                   1 +1 504 8334350
-contact:google_plus           2 https://plus.google.com/100944071214559916238, https://plus.google.com/106327378
-contact:phone                11 +1 504 274 2200, +1 504 5611095, +1 504 593 9491, +1-504-322-7130, +1 504 525810
+contact:google_plus           2 https://plus.google.com/106327378048083832687/about, https://plus.google.com/100
+contact:phone                11 +1 504 5611095, +1 504 274 2200, +1-504-322-7130, +1 504 8275408, +1 504 5258106
 contact:twitter               2 OzNiteClub, https://twitter.com/themushroomnola
-contact:website               9 http://ejasc.net/, http://seedyourhealth.com/, http://stcatherine-hospital.com/,
+contact:website               9 http://seedyourhealth.com/, http://ejasc.net/, http://www.drmoses.com/, http://w
 contact:yelp                  1 http://www.yelp.com/biz/mushroom-new-orleans-new-orleans
 description:en                1 Family Dentist, Cosmetic Dentist, Dental Implants, Teeth Whitening, Dental Emerg
 diet:vegan                    1 yes
 diet:vegetarian               1 only
-disused:amenity               3 ferry_terminal, school, restaurant
+disused:amenity               3 school, restaurant, ferry_terminal
 fuel:diesel                   1 yes
 gay:men                       1 yes
 generator:source              1 gas
-gnis:county_id                5 103, 071, 051, 087, 075
-gnis:county_name              5 St. Bernard, St. Tammany, Plaquemines, Orleans, Jefferson
-gnis:created                 22 11/17/2008, 08/01/1993, 03/01/1994, 11/01/1992, 07/01/1993, 01/21/2006, 01/23/20
-gnis:edited                   5 07/29/2008, 12/09/2005, 02/27/2006, 09/22/2008, 01/09/2009
-gnis:feature_id            1711 554333, 554624, 550697, 550373, 550424, 549793, 557518, 2428929, 550279, 2429367
+gnis:county_id                5 103, 051, 075, 071, 087
+gnis:county_name              5 Jefferson, Plaquemines, St. Tammany, Orleans, St. Bernard
+gnis:created                 22 01/30/2006, 05/01/1994, 02/27/2006, 05/28/2008, 11/17/2008, 02/27/2004, 01/23/20
+gnis:edited                   5 01/09/2009, 07/29/2008, 12/09/2005, 02/27/2006, 09/22/2008
+gnis:feature_id            1711 2429186, 538463, 557570, 550411, 550296, 550477, 550270, 2429003, 550416, 242908
 gnis:feature_type             4 Swamp, Military, Bay, Airport
-gnis:id                     122 1629415, 540170, 543467, 550531, 558864, 557546, 543125, 556332, 539830, 560793,
+gnis:id                     122 550535, 558898, 540473, 558880, 1628194, 1629434, 554675, 559326, 1629379, 54346
 gnis:import_uuid              1 57871b70-0100-4405-bb30-88b2e001a944
 gnis:reviewed                 1 no
 gnis:state_id                 1 22
-healthcare:speciality          5 long_term_care, chiropractic, psychiatry, surgery, plastic_surgery
+healthcare:speciality          5 long_term_care, plastic_surgery, chiropractic, surgery, psychiatry
 historic:amenity              2 place_of_worship, school
-internet_access:fee           3 fee, yes, no
+internet_access:fee           3 yes, fee, no
 is_in:continent               1 North America
 is_in:country                 1 United States
 is_in:country_code            1 US
@@ -13092,10 +12960,10 @@ motorcycle:parts              1 yes
 motorcycle:repair             1 yes
 motorcycle:sales              1 yes
 name:ca                       1 Nova Orleans
-name:de                       2 The Ruby Slipper Cafe, Commerce
-name:en                      45 Magazine Antique Mall, Fuel &amp; Chemical Depot, Maritime Security Operations Cente
-name:es                       2 Casa N Orleans, Nueva Orleans
-name:fr                       8 Vieux Carré, Café Satsuma, La Nouvelle-Orléans, Melba, Saint Vincent Guest House
+name:de                       2 Commerce, The Ruby Slipper Cafe
+name:en                      45 Meril Restaurant, Rouses, Marie Laveau House of Voodoo, Magazine Antique Mall, S
+name:es                       2 Nueva Orleans, Casa N Orleans
+name:fr                       8 Hôtel Sainte Hélène, Restaurant Stanley, Café Satsuma, Saint Vincent Guest House
 name:he                       1 הרובע הצרפתי
 name:kn                       1 ಹೊಸ ಒರ್ಲೀನ್ಸ್
 name:oc                       1 Nòva Orleans
@@ -13103,8 +12971,8 @@ name:pl                       1 Urszulanki Unii Rzymskiej
 name:pronunciation            1 ˈmiʃu
 name:ru                       2 Новый Орлеан, Митейри
 name:uk                       1 Французький квартал
-name:vi                       7 Trường Giáo Lý và Việt Ngữ Thánh Tôma Trần Văn Thiện, Phước-Lộc-Thọ, Siêu thị Hồ
-name:zh                       3 新奥尔良, 福祿壽, cvs939 giros
+name:vi                       7 Siêu thị Hồng Kông, Tân Định, Đền thờ Quốc Tổ Hùng Vương, Phở Tàu Bay, Phước-Lộc
+name:zh                       3 福祿壽, cvs939 giros, 新奥尔良
 old_name:en                   1 Mary Queen of Peace Child Development Center
 payment:american_express          1 yes
 payment:bitcoin               1 yes
@@ -13121,9 +12989,9 @@ population:date               1 2016
 recycling:aluminium           1 yes
 recycling:scrap_metal          1 yes
 recycling:sheet_metal          1 yes
-ref:left                      5 234B, 230, 234A, 234C, 246A
+ref:left                      5 234B, 234A, 234C, 246A, 230
 ref:right                     1 246B
-ref:walmart                   5 2706, 911, 3167, 5081, 1353
+ref:walmart                   5 3167, 911, 5081, 2706, 1353
 shop:alcohol                  1 yes
 shop:beverages                1 yes
 shop:confectionery            1 yes
@@ -13140,7 +13008,7 @@ theatre:type                  1 amphi
 toilets:wheelchair            1 no
 tourism:museum                1 yes
 tower:construction            1 freestanding
-tower:type                    3 radar, bell_tower, communication
+tower:type                    3 communication, radar, bell_tower
 traffic_signals:direction          1 forward
 was:amenity                   1 hospital
 wetap:status                  1 working
@@ -13165,34 +13033,10 @@ wetap:status                  1 working
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">get_all_streets</span><span class="p">(</span><span class="n">show_normal</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        look at address:street values</span>
-<span class="sd">        that match (or don&#39;t match) a street regex.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">map_path</span> <span class="o">=</span> <span class="n">MAP_PATH</span>
-    <span class="n">tag_key</span> <span class="o">=</span> <span class="s2">&quot;addr:street&quot;</span>
-    
-    <span class="n">value_counts</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">map_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-        
-        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">ET</span><span class="o">.</span><span class="n">iterparse</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,)):</span>
-            <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;node&quot;</span><span class="p">,</span> <span class="s2">&quot;relation&quot;</span><span class="p">,</span> <span class="s2">&quot;way&quot;</span><span class="p">):</span>
-                
-                <span class="n">value_dict</span> <span class="o">=</span> <span class="p">{}</span>
-                
-                <span class="k">for</span> <span class="n">child_tag</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">iterfind</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">):</span>
-                    <span class="n">k_val</span> <span class="o">=</span> <span class="n">child_tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span>
-                    <span class="n">v_val</span> <span class="o">=</span> <span class="n">child_tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span>
-                    
-                    <span class="k">if</span> <span class="n">k_val</span> <span class="o">==</span> <span class="n">tag_key</span><span class="p">:</span>
-                        <span class="n">value_counts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">v_val</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-                        <span class="n">value_counts</span><span class="p">[</span><span class="n">v_val</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-    
-    <span class="k">return</span> <span class="n">value_counts</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">value_counts</span> <span class="o">=</span> <span class="n">notebook_audit_methods</span><span class="o">.</span><span class="n">get_all_streets</span><span class="p">(</span><span class="n">MAP_PATH</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -13202,20 +13046,7 @@ wetap:status                  1 working
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">value_counts</span> <span class="o">=</span> <span class="n">get_all_streets</span><span class="p">()</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[21]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># print the values, along with the count of occurrences</span>
@@ -15450,7 +15281,7 @@ Zimple Street               131
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">street_type_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(.*) (\b\S+\.?)$&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
@@ -17750,62 +17581,10 @@ Magazine Street
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[54]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">print_entities_on_street</span><span class="p">(</span><span class="n">tag_key</span><span class="p">,</span> <span class="n">tag_value</span><span class="p">,</span> <span class="n">max_results</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        finds and prints up to max_results sample Nodes / Ways / Relations</span>
-<span class="sd">        that have the specified tag key with a certain value</span>
-<span class="sd">        e.x. tag_key = street:add</span>
-<span class="sd">             tag_value = &quot;Bal of Square&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">map_path</span> <span class="o">=</span> <span class="n">MAP_PATH</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">map_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
-        <span class="n">num_examples_found</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">event</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">ET</span><span class="o">.</span><span class="n">iterparse</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,)):</span>
-            <span class="k">if</span> <span class="n">elem</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;node&quot;</span><span class="p">,</span> <span class="s2">&quot;relation&quot;</span><span class="p">,</span> <span class="s2">&quot;way&quot;</span><span class="p">):</span>
-                <span class="n">found_an_example</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">example_dict</span> <span class="o">=</span> <span class="p">{}</span>
-                
-                <span class="c1"># save atrributes too</span>
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">attrib</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">key_name</span> <span class="o">=</span> <span class="s2">&quot;attribute: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-                    <span class="n">example_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key_name</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
-                    <span class="n">example_dict</span><span class="p">[</span><span class="n">key_name</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                
-                <span class="k">for</span> <span class="n">child_tag</span> <span class="ow">in</span> <span class="n">elem</span><span class="o">.</span><span class="n">iterfind</span><span class="p">(</span><span class="s2">&quot;tag&quot;</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">child_tag</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;tag&quot;</span><span class="p">:</span>
-                        <span class="n">k_val</span> <span class="o">=</span> <span class="n">child_tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span>
-                        <span class="n">v_val</span> <span class="o">=</span> <span class="n">child_tag</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span>
-                        
-                        <span class="n">example_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">k_val</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
-                        <span class="n">example_dict</span><span class="p">[</span><span class="n">k_val</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v_val</span><span class="p">)</span>
-                        
-                        <span class="k">if</span> <span class="n">k_val</span> <span class="o">==</span> <span class="n">tag_key</span> <span class="ow">and</span> <span class="n">v_val</span> <span class="o">==</span> <span class="n">tag_value</span><span class="p">:</span>
-                            <span class="n">found_an_example</span> <span class="o">=</span> <span class="kc">True</span>
-                
-                <span class="k">if</span> <span class="n">found_an_example</span><span class="p">:</span>
-                    <span class="n">num_examples_found</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Example </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="p">))</span>    
-                    <span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">example_dict</span><span class="p">)</span>
-                          
-                    <span class="k">if</span> <span class="n">max_results</span> <span class="ow">and</span> <span class="p">(</span><span class="n">num_examples_found</span> <span class="o">&gt;=</span> <span class="n">max_results</span><span class="p">):</span>
-                        <span class="c1"># we have printed max_results so we are done</span>
-                        <span class="k">return</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[55]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">print_entities_on_street</span><span class="p">(</span><span class="n">tag_key</span><span class="o">=</span><span class="s2">&quot;addr:street&quot;</span><span class="p">,</span> <span class="n">tag_value</span><span class="o">=</span><span class="s2">&quot;Bal Of Square&quot;</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">notebook_audit_methods</span><span class="o">.</span><span class="n">print_entities_on_street</span><span class="p">(</span><span class="n">MAP_PATH</span><span class="p">,</span> <span class="n">tag_key</span><span class="o">=</span><span class="s2">&quot;addr:street&quot;</span><span class="p">,</span> <span class="n">tag_value</span><span class="o">=</span><span class="s2">&quot;Bal Of Square&quot;</span><span class="p">,</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 
 </div>
