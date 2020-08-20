@@ -7,7 +7,7 @@
 
 ## Overview
 
-Downloads Open Street Map data for New Orleans, prepares and loads the data into SQLite, and runs queries against the data.
+> Downloads Open Street Map data for New Orleans, prepares and loads the data into SQLite, and runs queries against the data.
 
 ## Environment Setup
 > This project uses python 3.6.8 with pip 19.0.3
